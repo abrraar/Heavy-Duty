@@ -1,0 +1,56 @@
+package com.example.heavyduty
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
+import com.example.heavyduty.navigation.HeavyDutyNavigation
+import com.example.heavyduty.presentation.view.theme.HeavyDutyTheme
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            HeavyDutyTheme {
+                // A surface container using the 'background' color from the theme
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    MainScreen()
+                }
+            }
+        }
+    }
+}
+
+
+@Preview(
+    showBackground = true,
+    showSystemUi = false,
+    widthDp = 840,
+    heightDp = 480)
+@Composable
+fun MainScreenPreview_LargeDevice() {
+    HeavyDutyTheme(dynamicColor = false) {
+        MainScreen()
+    }
+}
+
+@Preview(
+    showBackground = true,
+    )
+@Composable
+fun MainScreenPreview_NormalDevice() {
+    HeavyDutyTheme(dynamicColor = false) {
+        MainScreen()
+    }
+}
+
+
