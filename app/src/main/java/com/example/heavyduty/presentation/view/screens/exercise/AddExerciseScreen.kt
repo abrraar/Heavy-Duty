@@ -44,11 +44,11 @@ fun AddExerciseScreen(){
                     .height(30.dp),
                 placeholderText = stringResource(id = R.string.ent_exercise_name))
             CustomButton(
-                text = stringResource(id = R.string.muscle_involvement),
                 modifier = Modifier
                     .padding(top = 10.dp, bottom = 10.dp)
                     .height(40.dp)
                     .width(300.dp),
+                text = stringResource(id = R.string.muscle_involvement),
                 onClick = {})
             Text(
                 text = stringResource(id = R.string.exercise_movement),

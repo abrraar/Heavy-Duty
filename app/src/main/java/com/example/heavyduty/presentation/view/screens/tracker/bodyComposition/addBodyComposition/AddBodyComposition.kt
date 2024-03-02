@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -27,20 +28,20 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.heavyduty.R
 import com.example.heavyduty.data.local.tracker.bodyComposition.addBodyComposition.AddBodyCompositionTexts.promptText
 import com.example.heavyduty.presentation.view.util.customButton.CustomButton
 import com.example.heavyduty.presentation.view.theme.Black
 import com.example.heavyduty.presentation.view.theme.HeavyDutyTheme
-import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.addBodyComposition.AddBodyCompositionViewModel
 import com.example.heavyduty.presentation.view.util.customCard.CustomCard
 import com.example.heavyduty.presentation.view.util.customTextField.CustomTextField
+import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.addBodyComposition.AddBodyCompositionUIState
 
 
 @Composable
-fun BodyCompositionAddManually(){
-    val viewModel: AddBodyCompositionViewModel = hiltViewModel()
+fun AddBodyComposition(
+    addBodyCompositionUIState: AddBodyCompositionUIState
+){
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -52,14 +53,14 @@ fun BodyCompositionAddManually(){
 
         Spacer(modifier = Modifier.padding(15.dp))
         CustomButton(
-            onClick = { viewModel.setPhysicalTraitToTrue() },
-            text = stringResource(id = R.string.enter_physical_trait))
+            text = stringResource(id = R.string.enter_physical_trait),
+            onClick = {  })
 
-        if (viewModel.state.value.showPhysicalTraitPrompt){
-            AddComponentsPrompt(onCancel = { viewModel.setPhysicalTraitToFalse() }, viewModel = viewModel)
+        if (addBodyCompositionUIState.showPhysicalTraitPrompt){
+            AddComponentsPrompt(onCancel = {  }, addBodyCompositionUIState =  addBodyCompositionUIState)
         }
 
-        if(viewModel.state.value.isWeightClicked){
+        if(addBodyCompositionUIState.isWeightClicked){
             WeightCard()
         }
     }
@@ -68,7 +69,9 @@ fun BodyCompositionAddManually(){
 @Composable
 private fun WeightCard(){
     CustomCard(
-        modifier = Modifier.height(200.dp),
+        modifier = Modifier
+            .shadow(elevation = 10.dp, shape = RoundedCornerShape(20.dp))
+            .height(200.dp),
         header = stringResource(id = R.string.weight)
     ) {
         Text(
@@ -102,7 +105,7 @@ private fun WeightCard(){
 @Composable
 private fun AddComponentsPrompt(
     onCancel: () -> Unit,
-    viewModel: AddBodyCompositionViewModel
+    addBodyCompositionUIState: AddBodyCompositionUIState
 ){
 
     Dialog(onDismissRequest = { onCancel() }) {
@@ -138,38 +141,38 @@ private fun AddComponentsPrompt(
                 for(texts in promptText)
                 {
                     CustomButton(
-                        onClick = {
-                                  when(promptText.indexOf(texts)){
-                                      0 -> if(viewModel.state.value.isWeightClicked)
-                                      { viewModel.setWeightToFalse()}
-                                      else{ viewModel.setWeightToTrue() }
-
-                                      1 -> if(viewModel.state.value.isHeightClicked)
-                                      { viewModel.setHeightToFalse()}
-                                      else{ viewModel.setWeightToTrue() }
-
-                                      2 -> if(viewModel.state.value.isBodyFatClicked)
-                                      { viewModel.setBodyFatToFalse()}
-                                      else{ viewModel.setBodyFatToTrue() }
-
-                                      3 -> if(viewModel.state.value.isMuscleMassClicked)
-                                      { viewModel.setMuscleMassToFalse()}
-                                      else{ viewModel.setWeightToTrue() }
-                                  }
-                        },
-                        style = MaterialTheme.typography.titleSmall,
-                        text = stringResource(id = texts),
                         modifier = Modifier
                             .width(200.dp)
                             .padding(bottom = 15.dp),
+                        text = stringResource(id = texts),
+                        onClick = {
+                                  when(promptText.indexOf(texts)){
+                                      0 -> if( addBodyCompositionUIState.isWeightClicked)
+                                      { }
+                                      else{  }
+
+                                      1 -> if( addBodyCompositionUIState.isHeightClicked)
+                                      { }
+                                      else{  }
+
+                                      2 -> if( addBodyCompositionUIState.isBodyFatClicked)
+                                      { }
+                                      else{ }
+
+                                      3 -> if( addBodyCompositionUIState.isMuscleMassClicked)
+                                      { }
+                                      else{  }
+                                  }
+                        },
                         backgroundColorAlphaValue = when(promptText.indexOf(texts))
                         {
-                            0 -> if(viewModel.state.value.isWeightClicked){ 1f }else{0.5f}
-                            1 -> if(viewModel.state.value.isHeightClicked){ 1f }else{0.5f}
-                            2 -> if(viewModel.state.value.isBodyFatClicked){ 1f }else{0.5f}
-                            3 -> if(viewModel.state.value.isMuscleMassClicked){ 1f }else{0.5f}
+                            0 -> if( addBodyCompositionUIState.isWeightClicked){ 1f }else{0.5f}
+                            1 -> if( addBodyCompositionUIState.isHeightClicked){ 1f }else{0.5f}
+                            2 -> if( addBodyCompositionUIState.isBodyFatClicked){ 1f }else{0.5f}
+                            3 -> if( addBodyCompositionUIState.isMuscleMassClicked){ 1f }else{0.5f}
                             else -> {1f}
-                        }
+                        },
+                        style = MaterialTheme.typography.titleSmall
                     )
                 }
 
@@ -191,8 +194,7 @@ private fun WeightCardPreview(){
 @Composable
 private fun AddComponentsPromptPreview(){
     HeavyDutyTheme(dynamicColor = false) {
-        val viewModel: AddBodyCompositionViewModel = hiltViewModel()
-        AddComponentsPrompt(onCancel = {}, viewModel)
+        AddComponentsPrompt(onCancel = {},  addBodyCompositionUIState = AddBodyCompositionUIState())
     }
 
 }
@@ -201,6 +203,6 @@ private fun AddComponentsPromptPreview(){
 @Composable
 private  fun BodyCompositionAddManuallyPreview(){
     HeavyDutyTheme(dynamicColor = false) {
-        BodyCompositionAddManually()
+        AddBodyComposition( addBodyCompositionUIState =  AddBodyCompositionUIState())
     }
 }

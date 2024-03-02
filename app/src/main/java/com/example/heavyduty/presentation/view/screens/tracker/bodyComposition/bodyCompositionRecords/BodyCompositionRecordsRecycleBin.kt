@@ -25,7 +25,7 @@ import com.example.heavyduty.presentation.view.theme.IntractableBackgroundColor
 
 
 @Composable
-fun BodyCompositionHistory(){
+fun BodyCompositionRecordsRecycleBin(){
     Column(modifier = Modifier
         .background(
             color = NonIntractableBackgroundColor,
@@ -92,7 +92,7 @@ private fun CustomBox(
 @Preview()
 @Composable
 private fun BodyCompositionHistoryPreview(){
-    BodyCompositionHistory()
+    BodyCompositionRecordsRecycleBin()
 }
 
 @Preview()

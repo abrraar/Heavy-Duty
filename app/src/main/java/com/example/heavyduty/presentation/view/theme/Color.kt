@@ -18,5 +18,7 @@ val RecycleItemColor = Color(0xFF777474)
 
 val Red = Color(0xFFA11111)
 val BrightRed = Color(0xFFE50000)
-val Green = Color(0xFF228C08)
-val BrightGreen = Color(0xFF2EE501)
+val Green = Color(0xFF166F00)
+val BrightGreen = Color(0xFF22E000)
+
+val Facebook = Color(0xFF2F59C5)

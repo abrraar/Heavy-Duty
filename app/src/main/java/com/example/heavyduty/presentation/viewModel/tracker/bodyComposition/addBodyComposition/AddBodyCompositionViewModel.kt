@@ -16,6 +16,12 @@ class AddBodyCompositionViewModel
     private val _state = MutableStateFlow(AddBodyCompositionUIState())
     val state = _state.asStateFlow()
 
+    fun onAddBodyCompositionEvents(events: AddBodyCompositionEvents){
+        when(events){
+           is AddBodyCompositionEvents.EnterPhysicalTraitClicked -> null
+
+        }
+    }
     fun setPhysicalTraitToTrue(){
         _state.update {
             it.copy(

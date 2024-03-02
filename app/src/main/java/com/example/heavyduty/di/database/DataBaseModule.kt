@@ -2,6 +2,7 @@ package com.example.heavyduty.di.database
 
 import android.content.Context
 import androidx.room.Room
+import com.example.heavyduty.data.local.Constants
 import com.example.heavyduty.data.local.HeavyDutyDataBase
 import dagger.Module
 import dagger.Provides
@@ -19,7 +20,7 @@ object DataBaseModule {
         return Room.databaseBuilder(
             context = context,
             klass = HeavyDutyDataBase::class.java,
-            name = HeavyDutyDataBase.DATABASE_NAME
+            name = Constants.DATABASE_NAME
         )
             .fallbackToDestructiveMigration()
             .build()

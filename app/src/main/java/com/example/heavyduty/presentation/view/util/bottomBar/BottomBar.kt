@@ -34,7 +34,7 @@ import com.example.heavyduty.domain.model.util.BottomBarModel
 import com.example.heavyduty.presentation.view.theme.HeavyDutyTheme
 
 @Composable
-fun BottomBar(navController: NavController)
+fun BottomBar(navController: NavHostController)
 {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination

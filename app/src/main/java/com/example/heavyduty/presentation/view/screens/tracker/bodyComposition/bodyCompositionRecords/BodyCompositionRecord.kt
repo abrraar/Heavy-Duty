@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,20 +47,21 @@ fun BodyCompositionRecord(){
             .fillMaxHeight(1f)
         ){
             items(6){
-                BodyCompositionRecordCard()
-                Spacer(modifier = Modifier.padding(bottom = 10.dp))
+                BodyCompositionRecordCard(modifier = Modifier.padding(bottom = 20.dp))
+
             }
         }
     }
 }
 
 @Composable
-private fun BodyCompositionRecordCard(){
-    Column(modifier = Modifier
+private fun BodyCompositionRecordCard(modifier: Modifier = Modifier){
+    Column(modifier = modifier
         .background(
             color = CardInnerContentBackGround,
             shape = RoundedCornerShape(20.dp)
         )
+        .shadow(elevation = 10.dp, shape = RoundedCornerShape(20.dp))
         .height(180.dp)
         .width(340.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -140,9 +142,7 @@ private fun CustomBox(
 ){
     Box(
         modifier = Modifier
-            .background(
-                color = MaterialTheme.colorScheme.primary,
-            )
+            .background(color = MaterialTheme.colorScheme.primary)
             .width(85.dp)
             .fillMaxHeight(1f),
         contentAlignment = Alignment.Center

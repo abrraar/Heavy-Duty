@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.heavyduty.presentation.view.theme.Shape
@@ -32,12 +33,12 @@ fun CustomCard(
     arrangement: Arrangement.Vertical = Arrangement.Top,
     header: String = "Header",
     backGroundColor: CardColors = CardDefaults.cardColors(Black),
-    composable: (@Composable () -> Unit)? = null,
-
+    textAlign: Alignment.Horizontal = Alignment.CenterHorizontally,
+    composable: (@Composable () -> Unit)? = null
     ){
     Card(
         modifier = modifier
-            .width(330.dp)
+            .width(340.dp)
             .height(IntrinsicSize.Max),
         shape = Shape.small,
         colors = backGroundColor,
@@ -45,13 +46,14 @@ fun CustomCard(
 
     ) {
         Column(modifier = Modifier
-            .background(MainHIT)
+            .background(MaterialTheme.colorScheme.primary)
             .fillMaxWidth()
             .height(50.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = textAlign,
             verticalArrangement = Arrangement.Center)
         {
             Text(
+                modifier = Modifier.padding(start = 15.dp, end = 15.dp),
                 text = header,
                 color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.titleLarge)

@@ -7,13 +7,16 @@ import com.example.heavyduty.units.BodyCompositionMeasurementUnits
 import java.text.DateFormat
 import java.util.Calendar
 
+
+//DateFormat.getTimeInstance(DateFormat.SHORT).format(Calendar.getInstance().time)
+
 @Entity(tableName = "body_weight")
 data class Weight(
     @ColumnInfo("weight_id")
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val date: String = DateFormat.getDateInstance(DateFormat.FULL).format(Calendar.getInstance().time),
-    val time: String = DateFormat.getTimeInstance(DateFormat.SHORT).format(Calendar.getInstance().time),
+    val date: String,
+    val time: String,
     val mass: Double,
     val unit: BodyCompositionMeasurementUnits.MassMeasurements
 )
@@ -23,8 +26,8 @@ data class Height(
     @ColumnInfo("height_id")
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val date: String = DateFormat.getDateInstance(DateFormat.FULL).format(Calendar.getInstance().time),
-    val time: String = DateFormat.getTimeInstance(DateFormat.SHORT).format(Calendar.getInstance().time),
+    val date: String,
+    val time: String,
     val height: Double,
     val unit: BodyCompositionMeasurementUnits.HeightMeasurements
 )
@@ -34,19 +37,20 @@ data class BodyFat(
     @ColumnInfo("bodyFat_id")
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val date: String = DateFormat.getDateInstance(DateFormat.FULL).format(Calendar.getInstance().time),
-    val time: String = DateFormat.getTimeInstance(DateFormat.SHORT).format(Calendar.getInstance().time),
+    val date: String,
+    val time: String,
     val bodyFat: Double,
     val unit: BodyCompositionMeasurementUnits.MassMeasurements
 )
+
 
 @Entity(tableName = "muscle_mass")
 data class MuscleMass(
     @ColumnInfo("muscleMass_id")
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val date: String = DateFormat.getDateInstance(DateFormat.FULL).format(Calendar.getInstance().time),
-    val time: String = DateFormat.getTimeInstance(DateFormat.SHORT).format(Calendar.getInstance().time),
+    val date: String,
+    val time: String,
     val muscleMass: Double,
     val unit: BodyCompositionMeasurementUnits.MassMeasurements
 )
@@ -56,8 +60,8 @@ data class BMI(
     @ColumnInfo("bmi_id")
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val date: String = DateFormat.getDateInstance(DateFormat.FULL).format(Calendar.getInstance().time),
-    val time: String = DateFormat.getTimeInstance(DateFormat.SHORT).format(Calendar.getInstance().time),
+    val date: String,
+    val time: String,
     val bmi: Double
 )
 

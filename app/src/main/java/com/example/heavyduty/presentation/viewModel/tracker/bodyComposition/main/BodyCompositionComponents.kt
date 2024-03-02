@@ -22,6 +22,7 @@ fun getAllBodyComposition(): List<BodyCompositionComponents>{
 }
 
 fun getBodyCompositionComponent(component: Int): BodyCompositionComponents?{
-    val map = BodyCompositionComponents.entries.associateBy(BodyCompositionComponents::component)
+    val map = BodyCompositionComponents.entries
+        .associateBy(BodyCompositionComponents::component)
     return map[component]
 }

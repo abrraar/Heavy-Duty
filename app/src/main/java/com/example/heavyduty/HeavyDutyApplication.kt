@@ -6,5 +6,8 @@ import dagger.hilt.android.HiltAndroidApp
 @HiltAndroidApp
 class HeavyDutyApplication: Application()
 {
+    override fun onCreate() {
+        super.onCreate()
 
+    }
 }

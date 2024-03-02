@@ -35,7 +35,7 @@ class BodyCompositionViewModel
 
     fun onBodyCompositionEvents(event: BodyCompositionEvents){
         when(event){
-            is BodyCompositionEvents.displayGraph ->
+            is BodyCompositionEvents.DisplayGraph ->
                 when(event.pagerState){
                     0 -> _state.update {
                         data.clear()
@@ -89,11 +89,9 @@ class BodyCompositionViewModel
 
         viewModelScope.launch {
             bodyCompositionRepository.getAllHeight().collectLatest{
-
                 for(weight in it){
                     data.add(weight.date to weight.height.toFloat())
                 }
-
             }
         }
         return data
@@ -104,7 +102,6 @@ class BodyCompositionViewModel
 
         viewModelScope.launch {
             bodyCompositionRepository.getAllWeight().collectLatest{
-
                 for(weight in it){
                     data.add(weight.date to weight.mass.toFloat())
                 }
@@ -117,7 +114,6 @@ class BodyCompositionViewModel
 
         viewModelScope.launch {
             bodyCompositionRepository.getAllMuscleMass().collectLatest{
-
                 for(weight in it){
                     data.add(weight.date to weight.muscleMass.toFloat())
                 }

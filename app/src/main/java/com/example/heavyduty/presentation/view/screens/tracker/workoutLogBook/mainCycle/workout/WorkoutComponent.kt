@@ -1,36 +1,52 @@
-package com.example.heavyduty.view.screens.tracker.workoutLogBook.mainCycle.workout
+package com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.mainCycle.workout
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.heavyduty.presentation.view.theme.MainHIT
+import com.example.heavyduty.presentation.view.theme.HeavyDutyTheme
 
 @Composable
-fun Component(
+fun WorkoutComponent(
+    modifier: Modifier = Modifier,
+    numOfText: Int = 3,
+    textStyle: TextStyle = MaterialTheme.typography.titleSmall,
+    workoutName: String = "Exercise Name",
+    workoutDate: String = "Exercise Date",
+    progress: String = "Exercise Progress",
     header: Boolean,
-    bodyColor: Color){
+    workoutNumber: Int = 1,
+    headerStyle: TextStyle = MaterialTheme.typography.titleSmall,
+    bodyColor: Color,
+    composable: (@Composable () -> Unit)? = null)
+{
     Column(
-        modifier = Modifier
-            .height(150.dp)
-            .width(330.dp)
+        modifier = modifier
+            .height(IntrinsicSize.Max)
+            .width(360.dp)
             .background(
                 color = bodyColor,
                 shape = RoundedCornerShape(20.dp)
-            )
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+
     ) {
         if (header){
             Row(
@@ -38,50 +54,84 @@ fun Component(
                     .height(40.dp)
                     .fillMaxWidth()
                     .background(
-                        color = MainHIT,
+                        color = MaterialTheme.colorScheme.primary,
                         shape = RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp)
                     ),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {
                 Text(
-                    text = "Workout 1",
+                    style = headerStyle,
+                    text = "Workout $workoutNumber",
                     color = Color.White,
                     modifier = Modifier.padding(start = 15.dp))
             }
-            Row {
-                CustomColumn(text = "Suwi")
-                CustomColumn(text = "Suwi")
-                CustomColumn(text = "Suw")
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(1f).height(100.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ){
+                items(numOfText){
+                    CustomColumn(
+                        numOfText = numOfText,
+                        textStyle = textStyle,
+                        text = when(it){
+                        0 -> workoutName
+                        1 -> workoutDate
+                        2 -> progress
+                        else -> "no more than 3 items"
+                    })
+                }
             }
         }
         else{
             Row(
                 modifier = Modifier
                     .fillMaxWidth(1f)
-                    .fillMaxHeight(1f),
+                    .height(100.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                CustomColumn(text = "Suwi")
-                CustomColumn(text = "Suwi")
-                CustomColumn(text = "Suw")
+                LazyRow(){
+                    items(numOfText){
+                        CustomColumn(
+                            numOfText = numOfText,
+                            textStyle = textStyle,
+                            text = when(it){
+                                0 -> workoutName
+                                1 -> workoutDate
+                                2 -> progress
+                                else -> "no more than 3 items"
+                        })
+                    }
+                }
             }
+        }
+        if (composable != null){
+            composable()
         }
 
     }
 }
 
 @Composable
-private fun CustomColumn(text: String){
+private fun CustomColumn(
+    numOfText: Int,
+    textStyle: TextStyle,
+    text: String){
     Column(
         modifier = Modifier
-            .width(110.dp)
+            .width(if (numOfText == 3){120.dp}else{360.dp})
             .height(110.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = text, color = Color.White)
+        Text(
+            modifier = Modifier.padding(10.dp),
+            style = textStyle,
+            textAlign = TextAlign.Center,
+            text = text,
+            color = Color.White)
     }
 }
 
@@ -89,11 +139,14 @@ private fun CustomColumn(text: String){
 @Preview
 @Composable
 private fun ComponentPreview(){
-    Component(header = true, bodyColor = Color.Black)
+    HeavyDutyTheme(dynamicColor = false) {
+        WorkoutComponent(header = true, bodyColor = Color.Black)
+    }
+
 }
 
 @Preview
 @Composable
 private fun ComponentPreviewWithoutHeader(){
-    Component(header = false, bodyColor = Color.LightGray)
+    WorkoutComponent(header = false, bodyColor = Color.LightGray)
 }

@@ -1,271 +1,495 @@
 package com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.mainCycle.workout.exercise
 
 
+import android.widget.Toast
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.heavyduty.data.local.tracker.workoutLogbook.IntensityComponent.intensityHeaderList
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.heavyduty.domain.model.tracker.workoutLogbook.ExerciseModel
+import com.example.heavyduty.navigation.NavigationScreenNames
+import com.example.heavyduty.presentation.view.theme.CardInnerContentBackGround
+import com.example.heavyduty.presentation.view.theme.Green
+import com.example.heavyduty.presentation.view.theme.HeavyDutyTheme
+import com.example.heavyduty.presentation.view.theme.IntractableBackgroundColor
 import com.example.heavyduty.presentation.view.util.customButton.CustomButton
-import com.example.heavyduty.presentation.view.theme.MainHIT
+import com.example.heavyduty.presentation.view.util.customCard.CustomCard
+import com.example.heavyduty.presentation.view.util.customTextField.CustomTextField
+import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.WorkoutLogbookViewModel
+import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.exercise.component.ExerciseComponentEvents
+import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.exercise.component.ExerciseComponentUIState
+import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.exercise.component.ExerciseComponentViewModel
+import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.exercise.screen.ExerciseScreenUIState
+import com.example.heavyduty.units.IntensityUnits
 
 @Composable
-fun ExerciseComponent(){
-    Column(
+fun ExerciseComponent(
+    exerciseModel: ExerciseModel? = null,
+    workoutLogbookViewModel: WorkoutLogbookViewModel? = null,
+    showDetails: Boolean = true,
+    exerciseScreenUIState: ExerciseScreenUIState? = null,
+    exerciseNameStyle: TextStyle = MaterialTheme.typography.headlineMedium,
+){
+
+    var intensityComponentClicked by remember { mutableStateOf(false) }
+
+
+    val exerciseComponentViewModel = remember { ExerciseComponentViewModel(exerciseModel!!) }
+    val exerciseComponentUIState by exerciseComponentViewModel.exerciseComponentUIState.collectAsState()
+
+    CustomCard(
+        header = "Exercise ${exerciseModel!!.exerciseNumber}",
+        textAlign = Alignment.Start,
         modifier = Modifier
-            .background(
-                color = Color.Black,
-                shape = RoundedCornerShape(20.dp)
-            )
-            .height(370.dp)
-            .width(330.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
-    ) {
-        Row(modifier = Modifier
-            .background(
-                color = MainHIT,
-                shape = RoundedCornerShape(
-                    topStart = 20.dp,
-                    topEnd = 20.dp
-                )
-            )
-            .fillMaxWidth(1f)
-            .height(40.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start)
-        {
-            Text(
-                text = "Exercise 1",
-                color = Color.White,
-                modifier = Modifier.padding(start = 10.dp)
-            )
-        }
+            .padding(top = 10.dp)
+    ){
         Text(
-            text = "Incline Press",
-            color = Color.White,
-            fontSize = 32.sp,
-            modifier = Modifier.padding(top = 15.dp, bottom = 15.dp))
-        CustomButton(onClick = {})
-        Spacer(modifier = Modifier.padding(bottom = 15.dp))
-        Body()
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 15.dp, bottom = 15.dp),
+            text = exerciseModel.exerciseName,
+            color = MaterialTheme.colorScheme.onPrimary,
+            style = exerciseNameStyle)
+
+        if(showDetails){
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.animateContentSize(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioLowBouncy,
+                        stiffness = Spring.StiffnessVeryLow
+                    )
+                )){
+
+                CustomButton(
+                    addShadow = false,
+                    shape = if(intensityComponentClicked) {
+                        RoundedCornerShape(
+                            bottomEnd = 0.dp,
+                            bottomStart = 0.dp,
+                            topStart = 20.dp,
+                            topEnd = 20.dp) }
+                    else{ ButtonDefaults.shape },
+                    modifier = Modifier
+                        .height(40.dp)
+                        .width(280.dp),
+                    text = "Add Intensity ",
+                    onClick = { intensityComponentClicked = !intensityComponentClicked},
+                    style = MaterialTheme.typography.titleLarge
+                )
+                if (intensityComponentClicked){
+                    IntensityExtension(
+                        exerciseModel = exerciseModel,
+                        events = exerciseComponentViewModel::onExerciseComponentEvent,
+                        workoutLogbookViewModel = workoutLogbookViewModel!!,
+                        modifier = Modifier.padding(bottom = 15.dp),
+                        exerciseScreenUIState = exerciseScreenUIState!!,
+                        exerciseComponentUIState = exerciseComponentUIState)
+                }
+                if(exerciseComponentUIState.listOfIntensityComponentName.size > 0){
+                    Body(
+                        exerciseComponentUIState = exerciseComponentUIState,
+                        modifier = Modifier.padding(top = 10.dp))
+                }
+                else{
+                    Text(
+                        modifier = Modifier.padding(top = 10.dp, bottom = 10.dp),
+                        textAlign = TextAlign.Center,
+                        text = "No intensity component is selected",
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        style = MaterialTheme.typography.titleSmall)
+                }
+                Spacer(modifier = Modifier.padding(10.dp))
+            }
+        }
 
     }
 }
 
 @Composable
-private fun IntensityComponent() {
+private fun Body(
+    modifier: Modifier = Modifier,
+    exerciseComponentUIState: ExerciseComponentUIState,
+    ){
     Column(
-        modifier = Modifier
-            .height(100.dp)
-            .width(250.dp)
+        modifier = modifier
+            .width(280.dp)
+            .height(((50 * (exerciseComponentUIState.listOfIntensityComponentName.size + 1)) + (exerciseComponentUIState.listOfIntensityComponentName.size * 2.5)).dp)
             .background(
-                color = Color.Green,
+                color = CardInnerContentBackGround,
                 shape = RoundedCornerShape(20.dp)
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
+            )
     ) {
-        Spacer(modifier = Modifier.padding(bottom = 3.dp))
-        Column(
-            modifier = Modifier
-                .height(60.dp)
-                .width(245.dp)
-                .background(
-                    color = Color.Black,
-                    shape = RoundedCornerShape(20.dp)
-                ),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ){
-            Text(text = "Pre Exhaust", color = Color.White)
+        HeaderRow()
+        LazyColumn(userScrollEnabled = false){
+            items(exerciseComponentUIState.listOfIntensityComponentName.size){
+                BodyRow(
+                    intensityComponentText = exerciseComponentUIState.listOfIntensityComponentName[it].component,
+                    bottomCorner = if(it +1 == exerciseComponentUIState.listOfIntensityComponentName.size){ 20 } else{ 0 }
+                )
+            }
         }
-        Column(
-            modifier = Modifier
-                .fillMaxHeight(1f)
-                .fillMaxWidth(1f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        )
-        {
-            Text(text = "Add", color = Color.White)
-        }
+    }
+}
 
+@Composable
+private fun HeaderRow(){
+    LazyRow(
+        userScrollEnabled = false,
+        modifier = Modifier
+            .background(
+                color = MaterialTheme.colorScheme.primary,
+                shape = RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp))){
+        items(4)
+        {
+            Box(modifier = Modifier
+                .height(50.dp)
+                .width(70.dp),
+                contentAlignment = Alignment.Center) {
+                Text(
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.labelSmall,
+                    text = when(it){
+                        0 -> "Intensity component"
+                        1 -> "value"
+                        2 -> "previous\nvalue"
+                        3 -> "increase\nrate %"
+                        else -> "lol"
+                    },
+                    color = MaterialTheme.colorScheme.onPrimary)
+            }
+        }
     }
 }
 
 
 @Composable
-private fun Body(){
-    Column(
+private fun BodyRow(
+    intensityComponentText: String =  "",
+    previousValue: String = "",
+    increaseRate: String = "",
+    bottomCorner: Int = 20
+){
+    LazyRow(
+        userScrollEnabled = false,
         modifier = Modifier
-            .width(300.dp)
-            .background(color = Color.Black, shape = RoundedCornerShape(20.dp))
-    ) {
-        LazyRow(modifier = Modifier.fillMaxWidth(1f))
-        {
-            itemsIndexed(intensityHeaderList)
+            .padding(top = 2.dp)) {
+        items(4){
+            Box(modifier = Modifier
+                .background(
+                    color = when (it) {
+                        0 -> MaterialTheme.colorScheme.primary
+                        else -> Color.DarkGray
+                    },
+                    shape = RoundedCornerShape(
+                        bottomEnd = if (it == 3) {
+                            bottomCorner.dp
+                        } else {
+                            0.dp
+                        },
+                        bottomStart = if (it == 0) {
+                            bottomCorner.dp
+                        } else {
+                            0.dp
+                        }
+                    )
+                )
+                .height(50.dp)
+                .width(70.dp),
+                contentAlignment = Alignment.Center)
             {
-                index, item ->
-                when(index){
-                    0 ->  CustomHeaderBox(text = item, corner = "start")
-                    3 ->  CustomHeaderBox(text = item, corner = "end")
-                    else ->  CustomHeaderBox(text = item, corner = "")
+                when(it){
+                    1 -> CustomTextField(
+                        imeAction = ImeAction.Next,
+                        keyboardType = KeyboardType.Number,
+                        fontSize = MaterialTheme.typography.headlineSmall.fontSize,
+                        fontColor = MaterialTheme.colorScheme.onPrimary,
+                        singleLine = true,
+                        placeholderText = "",
+                        placeholderStyle = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier
+                            .height(50.dp)
+                            .width(70.dp)
+                            .background(
+                                color = IntractableBackgroundColor,
+                                shape = RoundedCornerShape(0.dp)
+                            )
+                    )
+                    else ->  Text(
+                        text = when(it){
+                            0 -> intensityComponentText
+                            2 -> previousValue
+                            3 -> increaseRate
+                            else -> ""
+                        },
+                        textAlign = TextAlign.Center,
+                        style =  when(it){
+                            0 -> MaterialTheme.typography.labelSmall
+                            else -> MaterialTheme.typography.headlineSmall
+                        },
+                        color = when(it){
+                            0 -> MaterialTheme.colorScheme.onPrimary
+                            else -> MaterialTheme.colorScheme.onBackground
+                        })
                 }
             }
         }
-        CustomRow("", "","")
     }
 }
 
-@Composable
-private fun CustomRow(
-    intensityComponent: String,
-    previousValue: String,
-    increaseRate: String
-)
-{
-    LazyRow {
-       items(4) {
-           item ->
-           Box(modifier = Modifier
-               .background(
-                   color = when (item) {
-                       0 -> MainHIT
-                       else -> Color.DarkGray
-                   }
-               )
-               .height(50.dp)
-               .width(75.dp),
-               contentAlignment = Alignment.Center)
-           {
-               when(item){
-                   0 -> Text(
-                       text = intensityComponent,
-                       color = Color.White,
-                       textAlign = TextAlign.Center,
-                       fontSize = 10.sp,
-                       modifier = Modifier.padding(10.dp))
-                   1 -> TextField(
-                       value = "",
-                       onValueChange = {},
-                       colors = TextFieldDefaults.colors(
-                           disabledTextColor = Color.Transparent,
-                           focusedContainerColor = Color.LightGray,
-                           unfocusedContainerColor = Color.LightGray,
-                           disabledContainerColor = Color.LightGray,
-                           focusedIndicatorColor = Color.Transparent,
-                           unfocusedIndicatorColor = Color.Transparent,
-                           disabledIndicatorColor = Color.Transparent,
-                       ),
-                       shape = RoundedCornerShape(0.dp),
-                       singleLine = true,
-                       placeholder = { Text(text = "..........")},
-                       textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Left),
-                       keyboardOptions = KeyboardOptions(
-                           keyboardType = KeyboardType.Number,
-                           imeAction = ImeAction.Done
-                       )
-                   )
-                   2 -> Text(
-                       text = previousValue,
-                       color = Color.White,
-                       textAlign = TextAlign.Center,
-                       fontSize = 10.sp,
-                       modifier = Modifier.padding(10.dp))
-                   3 -> Text(
-                       text = increaseRate,
-                       color = Color.White,
-                       textAlign = TextAlign.Center,
-                       fontSize = 10.sp,
-                       modifier = Modifier.padding(10.dp))
-               }
-           }
-       }
-    }
-}
 
 @Composable
-private fun CustomHeaderBox(
-    text: Int,
-    corner: String)
-{
-    Column(
-        modifier = Modifier
-            .height(50.dp)
-            .width(75.dp)
+private fun IntensityExtension(
+    modifier: Modifier = Modifier,
+    workoutLogbookViewModel: WorkoutLogbookViewModel,
+    exerciseModel: ExerciseModel? = null,
+    events: (ExerciseComponentEvents) -> Unit,
+    exerciseScreenUIState: ExerciseScreenUIState,
+    exerciseComponentUIState: ExerciseComponentUIState,
+){
+    val context = LocalContext.current
+
+    LazyColumn(
+        userScrollEnabled = false,
+        modifier = modifier
+            .width(280.dp)
+            .height(620.dp)
             .background(
-                color = MainHIT,
-                shape = when (corner) {
-                    "start" -> RoundedCornerShape(topStart = 20.dp)
-                    "end" -> RoundedCornerShape(topEnd = 20.dp)
-                    else -> {
-                        RoundedCornerShape(0.dp)
-                    }
-                }
+                color = Color.DarkGray,
+                shape = RoundedCornerShape(
+                    bottomStart = 20.dp,
+                    bottomEnd = 20.dp
+                )
             ),
-        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        Text(
-            text = stringResource(id = text),
-            color = Color.White,
-            textAlign = TextAlign.Center,
-            fontSize = 10.sp,
-            modifier = Modifier.padding(10.dp)
-        )
+    ) {
+        items(5){
+
+            IntensityComponent(
+                onClick = {
+                    when(it){
+                        0 ->  if(exerciseComponentUIState.positiveClickable)
+                        {
+                            // update UI state
+                            events(ExerciseComponentEvents.IntensityComponentClicked(IntensityUnits.Positive))
+
+                            // data persist
+                            workoutLogbookViewModel.onIntensityComponentSelected(
+                                intensityUnit = IntensityUnits.Positive,
+                                cycleNumber = exerciseScreenUIState.cycleIndex,
+                                workoutNumber = exerciseScreenUIState.workoutIndex,
+                                exerciseModel = exerciseModel!!
+                            )
+                        }
+                        else { Toast.makeText(context, "cannot select positive", Toast.LENGTH_SHORT).show() }
+
+                        1 -> if(exerciseComponentUIState.staticHoldClickable )
+                        {
+
+                            events(ExerciseComponentEvents.IntensityComponentClicked(IntensityUnits.Static))
+
+                            workoutLogbookViewModel.onIntensityComponentSelected(
+                                intensityUnit = IntensityUnits.Static,
+                                cycleNumber = exerciseScreenUIState.cycleIndex,
+                                workoutNumber = exerciseScreenUIState.workoutIndex,
+                                exerciseModel = exerciseModel!!
+                            )
+
+                        }
+                        else{ Toast.makeText(context, "cannot select static", Toast.LENGTH_SHORT).show() }
+
+                        2-> if(exerciseComponentUIState.negativeClickable )
+                        {
+                            events(ExerciseComponentEvents.IntensityComponentClicked(IntensityUnits.Negative))
+
+                            workoutLogbookViewModel.onIntensityComponentSelected(
+                                intensityUnit = IntensityUnits.Negative,
+                                cycleNumber = exerciseScreenUIState.cycleIndex,
+                                workoutNumber = exerciseScreenUIState.workoutIndex,
+                                exerciseModel = exerciseModel!!
+                            )
+                        }
+                        else{ Toast.makeText(context, "cannot select Negative", Toast.LENGTH_SHORT).show() }
+
+                        3 -> if(exerciseComponentUIState.forcedClickable)
+                        {
+
+                            events(ExerciseComponentEvents.IntensityComponentClicked(IntensityUnits.Forced))
+                            workoutLogbookViewModel.onIntensityComponentSelected(
+                                intensityUnit = IntensityUnits.Forced,
+                                cycleNumber = exerciseScreenUIState.cycleIndex,
+                                workoutNumber = exerciseScreenUIState.workoutIndex,
+                                exerciseModel = exerciseModel!!
+                            )
+                        }
+                        else{ Toast.makeText(context, "cannot select Forced", Toast.LENGTH_SHORT).show() }
+
+                        4 ->
+                            if(exerciseComponentUIState.preExhaustClickable ) {
+
+//                            workoutLogbookViewModel.onIntensityComponentSelected(
+//                                intensityUnit = IntensityUnits.PreExhaust,
+//                                cycleNumber = exerciseScreenUIState.cycleIndex,
+//                                workoutNumber = exerciseScreenUIState.workoutIndex,
+//                                exerciseModel = exerciseModel!!
+//                            )
+                        }
+                            else{ Toast.makeText(context, "cannot select preExhaust", Toast.LENGTH_SHORT).show() }
+                    }
+                },
+                modifier = Modifier.padding(top = 20.dp),
+                selectedIndicator = when(it){
+                    0 -> exerciseComponentUIState.positiveText
+                    1 -> exerciseComponentUIState.staticHoldText
+                    2 -> exerciseComponentUIState.negativeText
+                    3 -> exerciseComponentUIState.forcedText
+                    4 -> exerciseComponentUIState.preExhaustText
+                    else -> ""
+                },
+                color = when(it){
+                    0 -> exerciseComponentUIState.positiveRepColor
+                    1 -> exerciseComponentUIState.staticHoldColor
+                    2 -> exerciseComponentUIState.negativeColor
+                    3 -> exerciseComponentUIState.forcedColor
+                    4 -> exerciseComponentUIState.preExhaustColor
+                    else -> Color.Green },
+                intensityComponentName = when(it){
+                    0 -> "Positive Reps"
+                    1 -> "Static Hold"
+                    2 -> "Negative Reps"
+                    3 -> "Forced Reps"
+                    4 -> "Pre Exhaust"
+                    else -> ""
+                }
+            )
+        }
+
     }
 }
 
-
-@Preview
 @Composable
-private fun IntensityComponentPreview(){
-    IntensityComponent()
-}
+private fun IntensityComponent(
+    modifier:  Modifier = Modifier,
+    onClick: () -> Unit,
+    intensityComponentName: String = "intensity Name",
+    selectedIndicator: String = "Add",
+    color: Color = Green
+){
+    Column(
+        modifier = modifier
+            .clickable(
+                onClick = onClick
+            )
+            .shadow(20.dp, shape = RoundedCornerShape(20.dp))
+            .background(
+                color = color,
+                shape = RoundedCornerShape(20.dp)
+            )
+            .height(100.dp)
+            .width(220.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.padding(top = 5.dp))
+        Column(
+            modifier = Modifier
+                .background(
+                    color = MaterialTheme.colorScheme.secondary,
+                    shape = RoundedCornerShape(20.dp)
+                )
+                .height(60.dp)
+                .width(200.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        )  {
+            Text(
+                text = intensityComponentName,
+                color = MaterialTheme.colorScheme.onSecondary,
+                style = MaterialTheme.typography.titleLarge)
+        }
+        Text(
+            modifier = Modifier.padding(top = 5.dp),
+            text = selectedIndicator,
+            color = MaterialTheme.colorScheme.onSecondary,
+            style = MaterialTheme.typography.titleLarge)
 
-
-@Preview
-@Composable
-private fun BodyPreview(){
-    Body()
-}
-
-@Preview
-@Composable
-private fun CustomRowPreview(){
-    CustomRow("Positive Reps", "4", "10%")
+    }
 }
 
 
 @Preview
 @Composable
 private fun ExerciseComponentPreview(){
-    ExerciseComponent()
+    HeavyDutyTheme(dynamicColor = false) {
+        ExerciseComponent(
+            exerciseScreenUIState = ExerciseScreenUIState(),
+           )
+    }
+}
+@Preview
+@Composable
+private fun IntensityComponentPreview(){
+    HeavyDutyTheme(dynamicColor = false) {
+        IntensityExtension(
+            events = {},
+            exerciseScreenUIState = ExerciseScreenUIState(),
+            workoutLogbookViewModel = hiltViewModel(),
+            exerciseComponentUIState = ExerciseComponentUIState(),)
+    }
+}
+
+@Preview
+@Composable
+private fun IntensityExtensionPreview(){
+    HeavyDutyTheme(dynamicColor = false) {
+        IntensityComponent(onClick = {})
+    }
+}
+@Preview
+@Composable
+private fun BodyRowPreview(){
+    HeavyDutyTheme(dynamicColor = false) {
+        BodyRow()
+    }
+}
+
+
+@Preview
+@Composable
+private fun BodyPreview(){
+    HeavyDutyTheme(dynamicColor = false) {
+        Body(exerciseComponentUIState = ExerciseComponentUIState())
+    }
 }

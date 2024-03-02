@@ -1,5 +1,6 @@
 package com.example.heavyduty.presentation.view.screens.tracker.bodyComposition.main
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -38,9 +39,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.heavyduty.R
 import com.example.heavyduty.data.local.tracker.bodyComposition.main.BodyCompositionTexts.columnTexts
 import com.example.heavyduty.data.local.tracker.bodyComposition.main.BodyCompositionTexts.rowTexts
+import com.example.heavyduty.navigation.NavigationScreenNames
 import com.example.heavyduty.presentation.view.theme.CardInnerContentBackGround
 import com.example.heavyduty.presentation.view.theme.HeavyDutyTheme
-import com.example.heavyduty.presentation.view.theme.MainHIT
 import com.example.heavyduty.presentation.view.theme.ScreenBackgroundColor
 import com.example.heavyduty.presentation.view.util.customButton.CustomButton
 import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.main.BodyCompositionEvents
@@ -70,8 +71,10 @@ import rememberMarker
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+@SuppressLint("ModifierParameter")
 @Composable
 fun BodyCompositionScreen(
+    navController: NavController,
     modifier: Modifier = Modifier,
     state: BodyCompositionUIState,
     events: (BodyCompositionEvents) -> Unit
@@ -87,17 +90,24 @@ fun BodyCompositionScreen(
             Graph(state = state)
             GraphStatus(state = state, events = events)
         }
-        Body()
-        RecordsListAndRecordEntry()
-
+        Column(
+            modifier = Modifier.fillMaxHeight(),
+        ) {
+            Body()
+            RecordsListAndRecordEntry(
+                navController = navController,
+                bodyCompositionUIState = state)
+        }
+        
     }
+
 }
 //-------------------------- Start Of Body -----------------------------------
 @Composable
 private fun Body(){
     Column(
         modifier = Modifier
-            .height(320.dp)
+            .height(380.dp)
             .fillMaxWidth()
             .background(color = CardInnerContentBackGround)
     ) {
@@ -116,7 +126,10 @@ private fun Body(){
                 color = MaterialTheme.colorScheme.onPrimary
             )
         }
-        LazyColumn{
+
+        LazyColumn(
+            userScrollEnabled = false
+        ){
             itemsIndexed(columnTexts){
                 index, item ->
                 Row(
@@ -127,9 +140,9 @@ private fun Body(){
                         modifier = Modifier
                             .height(
                                 if (index < 2) {
-                                    80.dp
+                                    100.dp
                                 } else {
-                                    95.dp
+                                    120.dp
                                 }
                             )
                             .width(120.dp)
@@ -146,13 +159,14 @@ private fun Body(){
                         )
                     }
                     // This is where the records are selected and displayed
+
                     Column(
                         modifier = Modifier
                             .height(
                                 if (index < 2) {
-                                    80.dp
-                                } else {
                                     100.dp
+                                } else {
+                                    120.dp
                                 }
                             )
                             .fillMaxWidth(1f)
@@ -165,7 +179,7 @@ private fun Body(){
                         if(index == 2)
                         {
                             LazyRow(modifier = Modifier
-                                .height(30.dp)
+                                .height(40.dp)
                                 .fillMaxWidth(1f)
                                 .background(color = MaterialTheme.colorScheme.primary)) {
                                 items(rowTexts.size){
@@ -232,11 +246,15 @@ private fun Graph(
     if(state.model == null && state.date == null){
         Column(modifier = Modifier
             .fillMaxWidth(1f)
-            .height(250.dp),
+            .height(280.dp)
+            .background(color = MaterialTheme.colorScheme.background),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center)
         {
-            Text(text = "Data not available", color = MaterialTheme.colorScheme.primary)
+            Text(
+                text = "Data not available",
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onBackground)
         }
     }
     else
@@ -309,36 +327,39 @@ private fun GraphStatus(
     events: (BodyCompositionEvents) -> Unit
 ){
     val observePage = state.pageState
-    HorizontalPager(state = rememberPagerState { 4 },
+
+    HorizontalPager(state = rememberPagerState { observePage },
         modifier = Modifier
             .background(color = MaterialTheme.colorScheme.secondary)
             .fillMaxWidth(1f)
-            .height(130.dp),
+            .fillMaxHeight(1f),
         verticalAlignment = Alignment.CenterVertically)
     {
         if(it == observePage){
-            events(BodyCompositionEvents.displayGraph(it))
+            events(BodyCompositionEvents.DisplayGraph(it))
         }
         Row(
             modifier = Modifier
                 .background(color = MaterialTheme.colorScheme.secondary)
-                .fillMaxWidth(1f),
+                .fillMaxWidth(1f)
+                .height(140.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
+                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
                     text = stringResource(id = getAllBodyComposition()[it].component),
                     color = MaterialTheme.colorScheme.onSecondary,
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.headlineSmall
                 )
                 Column(
-                    verticalArrangement = Arrangement.SpaceEvenly,
+                    verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Row(
+                    Row(modifier = Modifier.padding(top = 2.dp, bottom = 2.dp),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically)
                     {
@@ -352,8 +373,9 @@ private fun GraphStatus(
                                 4 -> "34"
                                 else -> "No value"
                             },
+
                             color = MaterialTheme.colorScheme.onSecondary,
-                            style = MaterialTheme.typography.headlineMedium)
+                            style = MaterialTheme.typography.headlineLarge)
                         Text(
                             text = when(it){
                                 0 -> "Kg"
@@ -365,32 +387,24 @@ private fun GraphStatus(
                             color = MaterialTheme.colorScheme.onSecondary,
                             style = MaterialTheme.typography.labelSmall)
                     }
-                    Spacer(modifier = Modifier.width(10.dp))
                     Text(
                         text = stringResource(id = R.string.date),
-                        style = MaterialTheme.typography.titleSmall,
+                        style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSecondary)
                 }
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Spacer(modifier = Modifier.padding(top = 5.dp))
+                Row {
                     Text(
-                        text = stringResource(R.string.total_records),
+                        modifier = Modifier.padding(end = 5.dp),
+                        text = "total records:",
                         color = MaterialTheme.colorScheme.onSecondary,
-                        style = MaterialTheme.typography.labelSmall)
-                    Spacer(modifier = Modifier.width(5.dp))
+                        style = MaterialTheme.typography.titleSmall)
                     Text(
-                        text = when(it){
-                            0 -> "3"
-                            1 -> "4"
-                            2 -> "6"
-                            3 -> "3"
-                            else -> "No value"
-                        },
+                        text = "10",
                         color = MaterialTheme.colorScheme.onSecondary,
-                        style = MaterialTheme.typography.labelSmall)
+                        style = MaterialTheme.typography.titleSmall)
                 }
+
             }
         }
     }
@@ -399,12 +413,15 @@ private fun GraphStatus(
 //--------------- Start Of Graph Navigation ------------------------
 
 @Composable
-fun RecordsListAndRecordEntry(){
+fun RecordsListAndRecordEntry(
+    navController: NavController,
+    bodyCompositionUIState: BodyCompositionUIState
+){
     Row(
         modifier = Modifier
             .background(Color.Black)
             .fillMaxWidth(1f)
-            .height(150.dp),
+            .height(120.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -412,16 +429,22 @@ fun RecordsListAndRecordEntry(){
             modifier = Modifier
                 .height(50.dp)
                 .width(150.dp),
-            onClick = {},
             text = stringResource(id = R.string.enter_data_btn),
-            style = MaterialTheme.typography.titleSmall)
+            onClick = {
+                navController.navigate(NavigationScreenNames.AddBodyCompositionRecords.route)
+                      },
+            style = MaterialTheme.typography.titleSmall
+        )
         CustomButton(
             modifier = Modifier
                 .height(50.dp)
                 .width(150.dp),
-            onClick = { },
             text = stringResource(id = R.string.records_btn),
-            style = MaterialTheme.typography.titleSmall)
+            onClick = {
+                navController.navigate(NavigationScreenNames.BodyCompositionRecords.route)
+                      },
+            style = MaterialTheme.typography.titleSmall
+        )
 
     }
 }
@@ -465,8 +488,10 @@ private fun BodyPreview(){
 private fun BodyCompositionScreenPreview(){
     HeavyDutyTheme(dynamicColor = false){
         val state = BodyCompositionUIState()
-        val nav = rememberNavController()
-        BodyCompositionScreen(events = {}, state = state)
+        BodyCompositionScreen(
+            navController = rememberNavController(),
+            events = {},
+            state = state)
     }
 }
 

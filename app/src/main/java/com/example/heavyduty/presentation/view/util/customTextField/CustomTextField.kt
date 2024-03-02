@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActionScope
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -46,10 +48,12 @@ fun CustomTextField(
     textPlacementAlignment: Alignment.Vertical = Alignment.CenterVertically,
     textPosition: Alignment = Alignment.TopStart,
     textAlign: TextAlign = TextAlign.Center,
-    singleLine: Boolean = false
+    singleLine: Boolean = false,
+    keyboardActions: KeyboardActions = KeyboardActions()
 ) {
     var text by rememberSaveable { mutableStateOf("") }
     BasicTextField(
+        keyboardActions = keyboardActions ,
         keyboardOptions = KeyboardOptions(
             keyboardType = keyboardType,
             imeAction = imeAction),

@@ -9,12 +9,12 @@ object TrackerTab
 {
     val tabResource = listOf(
         TrackerTabObjectModel(
-            route = NavigationScreenNames.WorkoutLogbook.route,
+            route = NavigationScreenNames.WorkoutLogbookRoute.route,
             title = R.string.workout_logbook,
             icon = R.drawable.workout_logbook_icn
         ),
         TrackerTabObjectModel(
-            route = NavigationScreenNames.BodyComposition.route,
+            route = NavigationScreenNames.BodyCompositionRoute.route,
             title = R.string.body_composition,
             icon = R.drawable.biceps_icn
         )
