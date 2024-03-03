@@ -1,6 +1,7 @@
 package com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.mainCycle.workout.exercise
 
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -38,9 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.heavyduty.domain.model.tracker.workoutLogbook.ExerciseModel
-import com.example.heavyduty.navigation.NavigationScreenNames
 import com.example.heavyduty.presentation.view.theme.CardInnerContentBackGround
 import com.example.heavyduty.presentation.view.theme.Green
 import com.example.heavyduty.presentation.view.theme.HeavyDutyTheme
@@ -65,7 +64,6 @@ fun ExerciseComponent(
 ){
 
     var intensityComponentClicked by remember { mutableStateOf(false) }
-
 
     val exerciseComponentViewModel = remember { ExerciseComponentViewModel(exerciseModel!!) }
     val exerciseComponentUIState by exerciseComponentViewModel.exerciseComponentUIState.collectAsState()
@@ -301,73 +299,176 @@ private fun IntensityExtension(
             IntensityComponent(
                 onClick = {
                     when(it){
-                        0 ->  if(exerciseComponentUIState.positiveClickable)
-                        {
-                            // update UI state
-                            events(ExerciseComponentEvents.IntensityComponentClicked(IntensityUnits.Positive))
+                        // Positive Click
+                        0 -> {
+                            if (!exerciseComponentUIState.positiveClicked) {
+                                // update UI state
+                                events(
+                                    ExerciseComponentEvents.IntensityComponentClicked(
+                                        IntensityUnits.Positive
+                                    )
+                                )
 
-                            // data persist
-                            workoutLogbookViewModel.onIntensityComponentSelected(
-                                intensityUnit = IntensityUnits.Positive,
-                                cycleNumber = exerciseScreenUIState.cycleIndex,
-                                workoutNumber = exerciseScreenUIState.workoutIndex,
-                                exerciseModel = exerciseModel!!
-                            )
+                                // data persist
+                                workoutLogbookViewModel.deleteIntensityComponent(
+                                    intensityUnit = IntensityUnits.Positive,
+                                    cycleNumber = exerciseScreenUIState.cycleIndex,
+                                    workoutNumber = exerciseScreenUIState.workoutIndex,
+                                    exerciseModel = exerciseModel!!
+                                )
+
+                                workoutLogbookViewModel.deleteIntensityComponent(
+                                    intensityUnit = IntensityUnits.Forced,
+                                    cycleNumber = exerciseScreenUIState.cycleIndex,
+                                    workoutNumber = exerciseScreenUIState.workoutIndex,
+                                    exerciseModel = exerciseModel
+                                )
+
+
+                            }
+                            else
+                            {
+                                events(
+                                    ExerciseComponentEvents.IntensityComponentClicked(
+                                        IntensityUnits.Positive
+                                    )
+                                )
+
+                                workoutLogbookViewModel.addIntensityComponent(
+                                    intensityUnit = IntensityUnits.Positive,
+                                    cycleNumber = exerciseScreenUIState.cycleIndex,
+                                    workoutNumber = exerciseScreenUIState.workoutIndex,
+                                    exerciseModel = exerciseModel!!
+                                )
+                            }
                         }
-                        else { Toast.makeText(context, "cannot select positive", Toast.LENGTH_SHORT).show() }
+                        // Static Click
+                        1 -> {
+                            if (exerciseComponentUIState.staticHoldClickable && !exerciseComponentUIState.staticClicked) {
+                                events(
+                                    ExerciseComponentEvents.IntensityComponentClicked(
+                                        IntensityUnits.Static
+                                    )
+                                )
+                                // Add static
+                                workoutLogbookViewModel.addIntensityComponent(
+                                    intensityUnit = IntensityUnits.Static,
+                                    cycleNumber = exerciseScreenUIState.cycleIndex,
+                                    workoutNumber = exerciseScreenUIState.workoutIndex,
+                                    exerciseModel = exerciseModel!!
+                                )
 
-                        1 -> if(exerciseComponentUIState.staticHoldClickable )
-                        {
+                            }
+                            if (exerciseComponentUIState.staticHoldClickable && exerciseComponentUIState.staticClicked)
+                            {
+                                events(
+                                    ExerciseComponentEvents.IntensityComponentClicked(
+                                        IntensityUnits.Static
+                                    )
+                                )
+                                //Delete Static
+                                workoutLogbookViewModel.deleteIntensityComponent(
+                                    intensityUnit = IntensityUnits.Static,
+                                    cycleNumber = exerciseScreenUIState.cycleIndex,
+                                    workoutNumber = exerciseScreenUIState.workoutIndex,
+                                    exerciseModel = exerciseModel!!
+                                )
+                            }
+                            else
+                            {
+                                if(exerciseComponentUIState.forcedClicked){
+                                    Toast.makeText(context, "de-select forced reps to select static hold", Toast.LENGTH_SHORT).show()
+                                }
 
-                            events(ExerciseComponentEvents.IntensityComponentClicked(IntensityUnits.Static))
-
-                            workoutLogbookViewModel.onIntensityComponentSelected(
-                                intensityUnit = IntensityUnits.Static,
-                                cycleNumber = exerciseScreenUIState.cycleIndex,
-                                workoutNumber = exerciseScreenUIState.workoutIndex,
-                                exerciseModel = exerciseModel!!
-                            )
-
+                            }
                         }
-                        else{ Toast.makeText(context, "cannot select static", Toast.LENGTH_SHORT).show() }
+                        // Negative Click
+                        2 -> {
+                            if (!exerciseComponentUIState.negativeClicked) {
+                                Log.i("negative click in add", exerciseComponentUIState.negativeClicked.toString())
+                                events(
+                                    ExerciseComponentEvents.IntensityComponentClicked(
+                                        IntensityUnits.Negative
+                                    )
+                                )
 
-                        2-> if(exerciseComponentUIState.negativeClickable )
-                        {
-                            events(ExerciseComponentEvents.IntensityComponentClicked(IntensityUnits.Negative))
-
-                            workoutLogbookViewModel.onIntensityComponentSelected(
-                                intensityUnit = IntensityUnits.Negative,
-                                cycleNumber = exerciseScreenUIState.cycleIndex,
-                                workoutNumber = exerciseScreenUIState.workoutIndex,
-                                exerciseModel = exerciseModel!!
-                            )
+                                workoutLogbookViewModel.addIntensityComponent(
+                                    intensityUnit = IntensityUnits.Negative,
+                                    cycleNumber = exerciseScreenUIState.cycleIndex,
+                                    workoutNumber = exerciseScreenUIState.workoutIndex,
+                                    exerciseModel = exerciseModel!!
+                                )
+                            }
+                            else  {
+                                Log.i("negative click in delete", exerciseComponentUIState.negativeClicked.toString())
+                                events(
+                                    ExerciseComponentEvents.IntensityComponentClicked(
+                                        IntensityUnits.Negative
+                                    )
+                                )
+                                workoutLogbookViewModel.deleteIntensityComponent(
+                                    intensityUnit = IntensityUnits.Negative,
+                                    cycleNumber = exerciseScreenUIState.cycleIndex,
+                                    workoutNumber = exerciseScreenUIState.workoutIndex,
+                                    exerciseModel = exerciseModel!!
+                                )
+                            }
                         }
-                        else{ Toast.makeText(context, "cannot select Negative", Toast.LENGTH_SHORT).show() }
-
-                        3 -> if(exerciseComponentUIState.forcedClickable)
-                        {
-
-                            events(ExerciseComponentEvents.IntensityComponentClicked(IntensityUnits.Forced))
-                            workoutLogbookViewModel.onIntensityComponentSelected(
-                                intensityUnit = IntensityUnits.Forced,
-                                cycleNumber = exerciseScreenUIState.cycleIndex,
-                                workoutNumber = exerciseScreenUIState.workoutIndex,
-                                exerciseModel = exerciseModel!!
-                            )
+                        // Forced Click
+                        3 -> {
+                            if (exerciseComponentUIState.forcedClickable && !exerciseComponentUIState.forcedClicked && !exerciseComponentUIState.positiveClicked) {
+                                events(
+                                    ExerciseComponentEvents.IntensityComponentClicked(
+                                        IntensityUnits.Forced
+                                    )
+                                )
+                                workoutLogbookViewModel.addIntensityComponent(
+                                    intensityUnit = IntensityUnits.Forced,
+                                    cycleNumber = exerciseScreenUIState.cycleIndex,
+                                    workoutNumber = exerciseScreenUIState.workoutIndex,
+                                    exerciseModel = exerciseModel!!
+                                )
+                            }
+                            if (exerciseComponentUIState.forcedClickable && exerciseComponentUIState.forcedClicked) {
+                                events(
+                                    ExerciseComponentEvents.IntensityComponentClicked(
+                                        IntensityUnits.Forced
+                                    )
+                                )
+                                workoutLogbookViewModel.deleteIntensityComponent(
+                                    intensityUnit = IntensityUnits.Forced,
+                                    cycleNumber = exerciseScreenUIState.cycleIndex,
+                                    workoutNumber = exerciseScreenUIState.workoutIndex,
+                                    exerciseModel = exerciseModel!!
+                                )
+                            }
+                            else {
+                                if(exerciseComponentUIState.positiveClicked){
+                                    Toast.makeText(context, "need positive reps\nto perform forced reps", Toast.LENGTH_SHORT).show()
+                                }
+                                if(exerciseComponentUIState.staticClicked){
+                                    Toast.makeText(context, "de-select static to select forced", Toast.LENGTH_SHORT).show()
+                                }
+                            }
                         }
-                        else{ Toast.makeText(context, "cannot select Forced", Toast.LENGTH_SHORT).show() }
+                        //Pre Exhaust Click
+                        4 -> {
+                            if (exerciseComponentUIState.preExhaustClickable) {
 
-                        4 ->
-                            if(exerciseComponentUIState.preExhaustClickable ) {
-
-//                            workoutLogbookViewModel.onIntensityComponentSelected(
+//                            workoutLogbookViewModel.addIntensityComponent(
 //                                intensityUnit = IntensityUnits.PreExhaust,
 //                                cycleNumber = exerciseScreenUIState.cycleIndex,
 //                                workoutNumber = exerciseScreenUIState.workoutIndex,
 //                                exerciseModel = exerciseModel!!
 //                            )
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "cannot select preExhaust",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
-                            else{ Toast.makeText(context, "cannot select preExhaust", Toast.LENGTH_SHORT).show() }
                     }
                 },
                 modifier = Modifier.padding(top = 20.dp),

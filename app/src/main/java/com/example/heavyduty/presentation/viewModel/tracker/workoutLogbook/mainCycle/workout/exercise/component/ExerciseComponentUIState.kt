@@ -12,21 +12,24 @@ data class ExerciseComponentUIState(
 
     val positiveRepColor: Color = BrightGreen,
     val positiveText: String = "Added",
-    val positiveClickable: Boolean = true,
+    val positiveClicked: Boolean = false,
 
     val staticHoldColor: Color = Green,
     val staticHoldText: String = "Add",
     val staticHoldClickable: Boolean = true,
+    val staticClicked: Boolean = false,
 
     val negativeColor: Color = Green,
     val negativeText: String = "Add",
-    val negativeClickable: Boolean = true,
+    val negativeClicked: Boolean = false,
 
     val forcedColor: Color = Green,
     val forcedText: String = "Add",
     val forcedClickable: Boolean = true,
+    val forcedClicked: Boolean = false,
 
     val preExhaustColor: Color = Green,
     val preExhaustText: String = "Add",
     val preExhaustClickable: Boolean = true,
+    val preExhaustClicked: Boolean = false,
 )

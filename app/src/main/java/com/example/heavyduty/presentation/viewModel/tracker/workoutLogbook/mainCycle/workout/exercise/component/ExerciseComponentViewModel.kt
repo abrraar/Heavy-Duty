@@ -21,7 +21,7 @@ class ExerciseComponentViewModel
 {
     private val _exerciseComponentUIState = MutableStateFlow(ExerciseComponentUIState())
     val exerciseComponentUIState = _exerciseComponentUIState.asStateFlow()
-    private val listOfIntensityComponentName = mutableListOf<IntensityUnits>()
+    private val listOfIntensityComponentName = mutableListOf(IntensityUnits.Positive)
 
     init {
         updateState()
@@ -39,7 +39,7 @@ class ExerciseComponentViewModel
         }
     }
 
-    // Updates the UI
+    // Get UI state
     private fun updateState() {
 
         // Contains positive
@@ -50,26 +50,24 @@ class ExerciseComponentViewModel
                 it.copy(
                     positiveRepColor = BrightGreen,
                     positiveText = "Added",
-
+                    positiveClicked = false,
                     listOfIntensityComponentName = listOfIntensityComponentName
-                    )
+                )
             }
             // Forced depends on positive therefore it's state will be updated when positive is updated
             // but if static is present forced cannot be selected
             if(exerciseModel.value.containsKey(IntensityUnits.Static)){
-                if(exerciseModel.value.containsKey(IntensityUnits.Forced) || !exerciseModel.value.containsKey(IntensityUnits.Forced)){
-                    removeIntensityFromList(IntensityUnits.Forced)
-                    _exerciseComponentUIState.update {
-                        it.copy(
-                            forcedText = "Static Selected",
-                            forcedColor = Color.Red,
-                            forcedClickable = false,
-                        )
-                    }
+                _exerciseComponentUIState.update {
+                    it.copy(
+                        forcedText = "Static Selected",
+                        forcedColor = Color.Red,
+                        forcedClickable = false,
+                    )
                 }
             }
             // if static isn't available and positive is then forced is clickable
-            else if(!exerciseModel.value.containsKey(IntensityUnits.Static)){
+            else
+            {
                 if (exerciseModel.value.containsKey(IntensityUnits.Forced)){
                     addIntensityToList(IntensityUnits.Forced)
                     _exerciseComponentUIState.update {
@@ -94,7 +92,7 @@ class ExerciseComponentViewModel
         }
 
         // Does not contain positive
-        else if (!exerciseModel.value.containsKey(IntensityUnits.Positive))
+        else if (!exerciseModel.value.containsKey(IntensityUnits.Positive) )
         {
             removeIntensityFromList(IntensityUnits.Positive)
             removeIntensityFromList(IntensityUnits.Forced)
@@ -104,6 +102,7 @@ class ExerciseComponentViewModel
                 it.copy(
                     positiveRepColor = Green,
                     positiveText = "Add",
+                    positiveClicked = true,
 
                     forcedText = "Need Positive Reps",
                     forcedColor = Color.Red,
@@ -123,6 +122,7 @@ class ExerciseComponentViewModel
                 it.copy(
                     staticHoldColor = BrightGreen,
                     staticHoldText = "Added",
+                    staticClicked = true,
 
                     forcedClickable = false,
                     forcedColor = Color.Red,
@@ -141,6 +141,7 @@ class ExerciseComponentViewModel
                 it.copy(
                     staticHoldColor = Green,
                     staticHoldText = "Add",
+                    staticClicked = false,
 
                     listOfIntensityComponentName = listOfIntensityComponentName
                 )
@@ -182,9 +183,100 @@ class ExerciseComponentViewModel
 
         }
 
+// Negative
+        if(exerciseModel.value.containsKey(IntensityUnits.Negative)){
+            addIntensityToList(IntensityUnits.Negative)
+            _exerciseComponentUIState.update {
+                it.copy(
+                    negativeColor = BrightGreen,
+                    negativeText = "Added",
+                    negativeClicked = true,
 
+                    listOfIntensityComponentName = listOfIntensityComponentName
+                )
+            }
+            Log.i(" yes negative", listOfIntensityComponentName.toString())
+        }
+        else
+        {
+            removeIntensityFromList(IntensityUnits.Negative)
+            _exerciseComponentUIState.update {
+                it.copy(
+                    negativeText = "Add",
+                    negativeColor = Green,
+                    negativeClicked = false,
+
+                    listOfIntensityComponentName = listOfIntensityComponentName
+                )
+            }
+            Log.i(" no negative", listOfIntensityComponentName.toString())
+        }
+// Forced
+
+        if(exerciseModel.value.containsKey(IntensityUnits.Forced)){
+            addIntensityToList(IntensityUnits.Forced)
+            _exerciseComponentUIState.update {
+                it.copy(
+                    forcedColor = BrightGreen,
+                    forcedText = "Added",
+                    forcedClicked = true,
+
+                    staticHoldText = "Forced selected",
+                    staticHoldColor = Color.Red,
+                    staticHoldClickable = false,
+
+                    listOfIntensityComponentName = listOfIntensityComponentName
+                )
+            }
+
+        }
+        else
+        {
+            if(exerciseModel.value.containsKey(IntensityUnits.Positive)){
+                removeIntensityFromList(IntensityUnits.Forced)
+                if (exerciseModel.value.containsKey(IntensityUnits.Static)){
+                    _exerciseComponentUIState.update {
+                        it.copy(
+                            forcedText = "Static Selected",
+                            forcedColor = Color.Red,
+                            forcedClicked = false,
+
+                            listOfIntensityComponentName = listOfIntensityComponentName
+                        )
+                    }
+                }
+                else
+                {
+                    _exerciseComponentUIState.update {
+                        it.copy(
+                            forcedText = "Add",
+                            forcedColor = Green,
+                            forcedClicked = true,
+
+                            listOfIntensityComponentName = listOfIntensityComponentName
+                        )
+                    }
+
+                }
+            }
+            else
+            {
+                _exerciseComponentUIState.update {
+                    it.copy(
+                        forcedText = "Need Positive",
+                        forcedColor = Color.Red,
+                        forcedClicked = false,
+
+                        listOfIntensityComponentName = listOfIntensityComponentName
+                    )
+                }
+            }
+
+
+        }
 
     }
+
 
     fun onExerciseComponentEvent(events: ExerciseComponentEvents){
         when(events){
@@ -201,6 +293,7 @@ class ExerciseComponentViewModel
                                        it.copy(
                                            positiveRepColor = Green,
                                            positiveText = "Add",
+                                           positiveClicked = true,
 
                                            forcedText = "Need Positive",
                                            forcedColor = Color.Red,
@@ -214,17 +307,36 @@ class ExerciseComponentViewModel
                                    // Forced depends on positive therefore it's state will be updated when positive is updated
                                    // but if static is present forced cannot be selected
                                    if(listOfIntensityComponentName.contains(IntensityUnits.Static)){
-                                       if(listOfIntensityComponentName.contains(IntensityUnits.Forced) || !listOfIntensityComponentName.contains(IntensityUnits.Forced)){
-                                           removeIntensityFromList(IntensityUnits.Forced)
-                                           _exerciseComponentUIState.update {
-                                               it.copy(
-                                                   forcedText = "Static Selected",
-                                                   forcedColor = Color.Red,
-                                                   forcedClickable = false,
-                                               )
-                                           }
+                                       _exerciseComponentUIState.update {
+                                           it.copy(
+                                               forcedText = "Static Selected",
+                                               forcedColor = Color.Red,
+                                               forcedClickable = false,
+                                           )
                                        }
                                    }
+
+                                   if(listOfIntensityComponentName.contains(IntensityUnits.Static) && !listOfIntensityComponentName.contains(IntensityUnits.Forced)){
+                                       _exerciseComponentUIState.update {
+                                           it.copy(
+                                               staticHoldColor = BrightGreen,
+                                               staticHoldClickable = true,
+                                               staticHoldText = "Added",
+                                               staticClicked = true
+                                           )
+                                       }
+                                   }
+                                   else{
+                                       _exerciseComponentUIState.update {
+                                           it.copy(
+                                               staticHoldColor = Green,
+                                               staticHoldClickable = true,
+                                               staticHoldText = "Add",
+                                               staticClicked = false
+                                           )
+                                       }
+                                   }
+
 
                                }
                                // list does not have positive
@@ -236,46 +348,36 @@ class ExerciseComponentViewModel
                                        it.copy(
                                            positiveRepColor = BrightGreen,
                                            positiveText = "Added",
+                                           positiveClicked = false,
 
                                            listOfIntensityComponentName = listOfIntensityComponentName
                                        )
                                    }
 
+
                                    if(listOfIntensityComponentName.contains(IntensityUnits.Static)){
-                                       if(listOfIntensityComponentName.contains(IntensityUnits.Forced) || !listOfIntensityComponentName.contains(IntensityUnits.Forced)){
-                                           removeIntensityFromList(IntensityUnits.Forced)
-                                           _exerciseComponentUIState.update {
-                                               it.copy(
-                                                   forcedText = "Static Selected",
-                                                   forcedColor = Color.Red,
-                                                   forcedClickable = false,
-                                               )
-                                           }
+
+                                       _exerciseComponentUIState.update {
+                                           it.copy(
+                                               forcedText = "Static Selected",
+                                               forcedColor = Color.Red,
+                                               forcedClickable = false,
+
+                                               listOfIntensityComponentName = listOfIntensityComponentName
+                                           )
                                        }
+
                                    }
                                    // if static isn't available and positive is then forced is clickable
-                                   else if(!listOfIntensityComponentName.contains(IntensityUnits.Static)){
-                                       if (listOfIntensityComponentName.contains(IntensityUnits.Forced))
-                                       {
-                                           addIntensityToList(IntensityUnits.Forced)
-                                           _exerciseComponentUIState.update {
-                                               it.copy(
-                                                   forcedText = "Added",
-                                                   forcedColor = BrightGreen,
-                                                   forcedClickable = true,
-                                               )
-                                           }
-                                       }
-                                       else if(!listOfIntensityComponentName.contains(IntensityUnits.Forced))
-                                       {
-                                           removeIntensityFromList(IntensityUnits.Forced)
-                                           _exerciseComponentUIState.update {
-                                               it.copy(
-                                                   forcedText = "Add",
-                                                   forcedColor = Green,
-                                                   forcedClickable = true,
-                                               )
-                                           }
+                                   else {
+                                       _exerciseComponentUIState.update {
+                                           it.copy(
+                                               forcedText = "Add",
+                                               forcedColor = Green,
+                                               forcedClickable = true,
+
+                                               listOfIntensityComponentName = listOfIntensityComponentName
+                                           )
                                        }
 
                                    }
@@ -284,84 +386,125 @@ class ExerciseComponentViewModel
                            }
 
                        IntensityUnits.Static -> {
-                           if (!listOfIntensityComponentName.contains(IntensityUnits.Static))
-                           {
-                               addIntensityToList(IntensityUnits.Static)
-                               _exerciseComponentUIState.update {
-                                   it.copy(
-                                       staticHoldColor = BrightGreen,
-                                       staticHoldText = "Added",
+                               if (!listOfIntensityComponentName.contains(IntensityUnits.Static))
+                               {
 
-                                       listOfIntensityComponentName = listOfIntensityComponentName
-                                   )
-                               }
-                               if(listOfIntensityComponentName.contains(IntensityUnits.Forced) || !listOfIntensityComponentName.contains(IntensityUnits.Forced)){
-                                   removeIntensityFromList(IntensityUnits.Forced)
+                                   addIntensityToList(IntensityUnits.Static)
                                    _exerciseComponentUIState.update {
                                        it.copy(
+                                           staticHoldColor = BrightGreen,
+                                           staticHoldText = "Added",
+                                           staticClicked = true,
+
                                            forcedText = "Static Selected",
                                            forcedColor = Color.Red,
                                            forcedClickable = false,
+
+                                           listOfIntensityComponentName = listOfIntensityComponentName
                                        )
                                    }
+
                                }
-
-                           }
-                           // Does not have Static
-                           else
-                           {
-                               removeIntensityFromList(IntensityUnits.Static)
-                               _exerciseComponentUIState.update {
-
-                                   it.copy(
-                                       staticHoldColor = Green,
-                                       staticHoldText = "Add",
-
-                                       listOfIntensityComponentName = listOfIntensityComponentName
-                                   )
-                               }
-                               if (listOfIntensityComponentName.contains(IntensityUnits.Positive))
+                               else
                                {
-                                   if (listOfIntensityComponentName.contains(IntensityUnits.Forced)){
-                                       addIntensityToList(IntensityUnits.Forced)
-                                       _exerciseComponentUIState.update {
-                                           it.copy(
-                                               forcedText = "Added",
-                                               forcedColor = BrightGreen,
-                                               forcedClickable = true,
-                                           )
-                                       }
+                                   removeIntensityFromList(IntensityUnits.Static)
+                                   _exerciseComponentUIState.update {
+
+                                       it.copy(
+                                           staticHoldColor = Green,
+                                           staticHoldText = "Add",
+                                           staticClicked = false,
+
+                                           listOfIntensityComponentName = listOfIntensityComponentName
+                                       )
                                    }
-                                   else if(!listOfIntensityComponentName.contains(IntensityUnits.Forced))
+                                   if (listOfIntensityComponentName.contains(IntensityUnits.Positive))
                                    {
-                                       removeIntensityFromList(IntensityUnits.Forced)
                                        _exerciseComponentUIState.update {
                                            it.copy(
                                                forcedText = "Add",
                                                forcedColor = Green,
                                                forcedClickable = true,
-                                           )
+                                               )
+                                       }
+                                   }
+                                   else
+                                   {
+                                       _exerciseComponentUIState.update {
+                                           it.copy(
+                                               forcedText = "Need Positive",
+                                               forcedColor = Color.Red,
+                                               forcedClickable = false,
+                                               )
                                        }
                                    }
                                }
-                               else if(!listOfIntensityComponentName.contains(IntensityUnits.Positive)){
-                                   removeIntensityFromList(IntensityUnits.Forced)
-                                   _exerciseComponentUIState.update {
-                                       it.copy(
-                                           forcedText = "Need Positive",
-                                           forcedColor = Color.Red,
-                                           forcedClickable = false,
-                                       )
-                                   }
+                           }
+
+                       IntensityUnits.Forced -> {
+                           if (!listOfIntensityComponentName.contains(IntensityUnits.Forced))
+                           {
+                               addIntensityToList(IntensityUnits.Forced)
+                               _exerciseComponentUIState.update {
+                                   it.copy(
+                                       forcedColor = BrightGreen,
+                                       forcedText = "Added",
+                                       forcedClicked = true,
+
+                                       staticHoldColor = Color.Red,
+                                       staticHoldText = "Forced selected",
+                                       staticHoldClickable = false,
+
+                                       listOfIntensityComponentName = listOfIntensityComponentName
+                                   )
                                }
+                           }
+                           else
+                           {
+                               removeIntensityFromList(IntensityUnits.Forced)
+                               _exerciseComponentUIState.update {
+                                   it.copy(
+                                       staticHoldColor = Green,
+                                       staticHoldText = "Add",
+                                       staticHoldClickable = true,
 
+                                       forcedText = "Add",
+                                       forcedColor = Green,
+                                       forcedClicked = false,
 
+                                       listOfIntensityComponentName = listOfIntensityComponentName
+                                   )
+                               }
                            }
                        }
 
-                       IntensityUnits.Forced -> {}
+                       IntensityUnits.Negative-> {
+                           if(!listOfIntensityComponentName.contains(IntensityUnits.Negative)){
+                               addIntensityToList(IntensityUnits.Negative)
+                               _exerciseComponentUIState.update {
+                                   it.copy(
+                                       negativeColor = BrightGreen,
+                                       negativeText = "Added",
+                                       negativeClicked = true,
 
-                       IntensityUnits.Negative-> {}
+                                       listOfIntensityComponentName = listOfIntensityComponentName
+                                       )
+                               }
+                           }
+                           else
+                           {
+                               removeIntensityFromList(IntensityUnits.Negative)
+                               _exerciseComponentUIState.update {
+                                   it.copy(
+                                       negativeText = "Add",
+                                       negativeColor = Green,
+                                       negativeClicked = false,
+
+                                       listOfIntensityComponentName = listOfIntensityComponentName
+                                   )
+                               }
+                           }
+                       }
 
                        IntensityUnits.PreExhaust-> {}
 
