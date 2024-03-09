@@ -16,9 +16,10 @@ object ExerciseModelModule
     @Provides
     fun providesExerciseModel(): ExerciseModel {
         return ExerciseModel(
-            exerciseName = "",
             exerciseNumber = 1,
+            exerciseName = "",
             exerciseType = "",
+            weight = 0.0,
             value = hashMapOf(IntensityUnits.Positive to 0),
             previousReps = 0,
             increasedRate = 0.0

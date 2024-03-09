@@ -1,6 +1,5 @@
 package com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.mainCycle.workout.exercise
 
-
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
@@ -38,7 +37,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.heavyduty.domain.model.tracker.workoutLogbook.ExerciseModel
 import com.example.heavyduty.presentation.view.theme.CardInnerContentBackGround
 import com.example.heavyduty.presentation.view.theme.Green
@@ -47,7 +45,7 @@ import com.example.heavyduty.presentation.view.theme.IntractableBackgroundColor
 import com.example.heavyduty.presentation.view.util.customButton.CustomButton
 import com.example.heavyduty.presentation.view.util.customCard.CustomCard
 import com.example.heavyduty.presentation.view.util.customTextField.CustomTextField
-import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.WorkoutLogbookViewModel
+import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.WorkoutLogbookEvents
 import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.exercise.component.ExerciseComponentEvents
 import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.exercise.component.ExerciseComponentUIState
 import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.exercise.component.ExerciseComponentViewModel
@@ -56,23 +54,30 @@ import com.example.heavyduty.units.IntensityUnits
 
 @Composable
 fun ExerciseComponent(
-    exerciseModel: ExerciseModel? = null,
-    workoutLogbookViewModel: WorkoutLogbookViewModel? = null,
+    exerciseModel: ExerciseModel,
+    workoutLogbookEvents: (WorkoutLogbookEvents) -> Unit,
     showDetails: Boolean = true,
-    exerciseScreenUIState: ExerciseScreenUIState? = null,
+    exerciseScreenUIState: ExerciseScreenUIState,
     exerciseNameStyle: TextStyle = MaterialTheme.typography.headlineMedium,
 ){
-
     var intensityComponentClicked by remember { mutableStateOf(false) }
-
-    val exerciseComponentViewModel = remember { ExerciseComponentViewModel(exerciseModel!!) }
+    val exerciseComponentViewModel = remember { ExerciseComponentViewModel(exerciseModel) }
     val exerciseComponentUIState by exerciseComponentViewModel.exerciseComponentUIState.collectAsState()
 
+    var weightNum by remember { mutableStateOf("") }
+    var posReps by remember { exerciseComponentUIState.positiveNum }
+    var statReps by remember { exerciseComponentUIState.staticNum }
+    var negReps by remember { exerciseComponentUIState.negativeNum }
+    var forceReps by remember { exerciseComponentUIState.forceNum }
+
+
     CustomCard(
-        header = "Exercise ${exerciseModel!!.exerciseNumber}",
+        enableDeleteBtn = true,
+        deleteBtn = {},
+        header = "Exercise ${exerciseModel.exerciseNumber}",
         textAlign = Alignment.Start,
         modifier = Modifier
-            .padding(top = 10.dp)
+            .padding(top = 15.dp, bottom = 15.dp)
     ){
         Text(
             textAlign = TextAlign.Center,
@@ -103,24 +108,92 @@ fun ExerciseComponent(
                     else{ ButtonDefaults.shape },
                     modifier = Modifier
                         .height(40.dp)
-                        .width(280.dp),
+                        .width(300.dp),
                     text = "Add Intensity ",
                     onClick = { intensityComponentClicked = !intensityComponentClicked},
                     style = MaterialTheme.typography.titleLarge
                 )
+
                 if (intensityComponentClicked){
                     IntensityExtension(
                         exerciseModel = exerciseModel,
-                        events = exerciseComponentViewModel::onExerciseComponentEvent,
-                        workoutLogbookViewModel = workoutLogbookViewModel!!,
+                        forceReps = forceReps,
+                        posReps = posReps,
+                        statReps = statReps,
+                        negativeReps = negReps,
+                        exerciseComponentEvents = exerciseComponentViewModel::onExerciseComponentEvent,
+                        workoutLogbookEvents = workoutLogbookEvents,
                         modifier = Modifier.padding(bottom = 15.dp),
-                        exerciseScreenUIState = exerciseScreenUIState!!,
+                        exerciseScreenUIState = exerciseScreenUIState,
                         exerciseComponentUIState = exerciseComponentUIState)
                 }
+                val num = (104 + (exerciseComponentUIState.listOfIntensityComponentName.size * 50 ) + (exerciseComponentUIState.listOfIntensityComponentName.size ))
+                Log.i("column", num.toString())
                 if(exerciseComponentUIState.listOfIntensityComponentName.size > 0){
-                    Body(
-                        exerciseComponentUIState = exerciseComponentUIState,
-                        modifier = Modifier.padding(top = 10.dp))
+                    Column(
+                        modifier = Modifier
+                            .padding(top = 15.dp)
+                            .width(300.dp)
+                            .height((104 + (exerciseComponentUIState.listOfIntensityComponentName.size * 50 ) + (exerciseComponentUIState.listOfIntensityComponentName.size )).dp)
+                            .background(
+                                color = CardInnerContentBackGround,
+                                shape = RoundedCornerShape(20.dp)
+                            )
+                    ) {
+                        HeaderRow()
+
+                        BodyRow(
+                            value = weightNum,
+                            onValueChange = {weightNum = it},
+                            intensityComponentText = "Weight",
+                            bottomCorner = 0
+                        )
+
+                        LazyColumn(userScrollEnabled = false){
+                            items(exerciseComponentUIState.listOfIntensityComponentName.size)
+                            {
+                                val intensityUnit = exerciseComponentUIState.listOfIntensityComponentName[it]
+
+                                var value by remember {
+                                    mutableStateOf("")
+                                }
+                                BodyRow(
+                                    value = when(intensityUnit ){
+                                        IntensityUnits.Positive -> posReps
+                                        IntensityUnits.Static -> statReps
+                                        IntensityUnits.Negative -> negReps
+                                        IntensityUnits.Forced -> forceReps
+                                        IntensityUnits.PreExhaust -> ""
+                                    },
+                                    onValueChange = {
+                                            text ->
+                                        when(intensityUnit ){
+                                            IntensityUnits.Positive -> posReps = text
+                                            IntensityUnits.Static -> statReps = text
+                                            IntensityUnits.Negative -> negReps = text
+                                            IntensityUnits.Forced -> forceReps = text
+                                            IntensityUnits.PreExhaust -> {}
+                                        }
+                                        workoutLogbookEvents(WorkoutLogbookEvents.AddIntensityComponent(
+                                            intensityUnit = intensityUnit,
+                                            exerciseModel = exerciseModel,
+                                            cycleNumber = exerciseScreenUIState.cycleIndex,
+                                            workoutNumber = exerciseScreenUIState.workoutIndex,
+                                            reps = when(intensityUnit ){
+                                                IntensityUnits.Positive -> posReps
+                                                IntensityUnits.Static -> statReps
+                                                IntensityUnits.Negative -> negReps
+                                                IntensityUnits.Forced -> forceReps
+                                                else -> value
+                                            }
+                                        ))
+                                    },
+                                    intensityComponentText = exerciseComponentUIState.listOfIntensityComponentName[it].component,
+                                    bottomCorner = if(it +1 == exerciseComponentUIState.listOfIntensityComponentName.size){ 20 } else{ 0 }
+                                )
+                            }
+                        }
+                    }
                 }
                 else{
                     Text(
@@ -138,32 +211,6 @@ fun ExerciseComponent(
 }
 
 @Composable
-private fun Body(
-    modifier: Modifier = Modifier,
-    exerciseComponentUIState: ExerciseComponentUIState,
-    ){
-    Column(
-        modifier = modifier
-            .width(280.dp)
-            .height(((50 * (exerciseComponentUIState.listOfIntensityComponentName.size + 1)) + (exerciseComponentUIState.listOfIntensityComponentName.size * 2.5)).dp)
-            .background(
-                color = CardInnerContentBackGround,
-                shape = RoundedCornerShape(20.dp)
-            )
-    ) {
-        HeaderRow()
-        LazyColumn(userScrollEnabled = false){
-            items(exerciseComponentUIState.listOfIntensityComponentName.size){
-                BodyRow(
-                    intensityComponentText = exerciseComponentUIState.listOfIntensityComponentName[it].component,
-                    bottomCorner = if(it +1 == exerciseComponentUIState.listOfIntensityComponentName.size){ 20 } else{ 0 }
-                )
-            }
-        }
-    }
-}
-
-@Composable
 private fun HeaderRow(){
     LazyRow(
         userScrollEnabled = false,
@@ -175,16 +222,16 @@ private fun HeaderRow(){
         {
             Box(modifier = Modifier
                 .height(50.dp)
-                .width(70.dp),
+                .width(75.dp),
                 contentAlignment = Alignment.Center) {
                 Text(
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.labelSmall,
                     text = when(it){
-                        0 -> "Intensity component"
-                        1 -> "value"
-                        2 -> "previous\nvalue"
-                        3 -> "increase\nrate %"
+                        0 -> "Units"
+                        1 -> "Value"
+                        2 -> "Previous\nvalue"
+                        3 -> "Difference"
                         else -> "lol"
                     },
                     color = MaterialTheme.colorScheme.onPrimary)
@@ -196,11 +243,14 @@ private fun HeaderRow(){
 
 @Composable
 private fun BodyRow(
+    value: String = "",
+    onValueChange: (String) -> Unit,
     intensityComponentText: String =  "",
     previousValue: String = "",
     increaseRate: String = "",
     bottomCorner: Int = 20
 ){
+
     LazyRow(
         userScrollEnabled = false,
         modifier = Modifier
@@ -226,13 +276,15 @@ private fun BodyRow(
                     )
                 )
                 .height(50.dp)
-                .width(70.dp),
+                .width(75.dp),
                 contentAlignment = Alignment.Center)
             {
                 when(it){
                     1 -> CustomTextField(
-                        imeAction = ImeAction.Next,
-                        keyboardType = KeyboardType.Number,
+                        value =  value,
+                        onValueChange = onValueChange,
+                        imeAction = ImeAction.Done,
+                        keyboardType = KeyboardType.NumberPassword,
                         fontSize = MaterialTheme.typography.headlineSmall.fontSize,
                         fontColor = MaterialTheme.colorScheme.onPrimary,
                         singleLine = true,
@@ -272,9 +324,13 @@ private fun BodyRow(
 @Composable
 private fun IntensityExtension(
     modifier: Modifier = Modifier,
-    workoutLogbookViewModel: WorkoutLogbookViewModel,
-    exerciseModel: ExerciseModel? = null,
-    events: (ExerciseComponentEvents) -> Unit,
+    posReps: String,
+    statReps: String,
+    negativeReps: String,
+    forceReps: String,
+    workoutLogbookEvents: (WorkoutLogbookEvents) -> Unit,
+    exerciseModel: ExerciseModel,
+    exerciseComponentEvents: (ExerciseComponentEvents) -> Unit,
     exerciseScreenUIState: ExerciseScreenUIState,
     exerciseComponentUIState: ExerciseComponentUIState,
 ){
@@ -283,7 +339,7 @@ private fun IntensityExtension(
     LazyColumn(
         userScrollEnabled = false,
         modifier = modifier
-            .width(280.dp)
+            .width(300.dp)
             .height(620.dp)
             .background(
                 color = Color.DarkGray,
@@ -303,76 +359,79 @@ private fun IntensityExtension(
                         0 -> {
                             if (!exerciseComponentUIState.positiveClicked) {
                                 // update UI state
-                                events(
+                                exerciseComponentEvents(
                                     ExerciseComponentEvents.IntensityComponentClicked(
                                         IntensityUnits.Positive
                                     )
                                 )
 
                                 // data persist
-                                workoutLogbookViewModel.deleteIntensityComponent(
+                                workoutLogbookEvents(WorkoutLogbookEvents.DeleteIntensityComponent(
                                     intensityUnit = IntensityUnits.Positive,
                                     cycleNumber = exerciseScreenUIState.cycleIndex,
                                     workoutNumber = exerciseScreenUIState.workoutIndex,
-                                    exerciseModel = exerciseModel!!
-                                )
+                                    exerciseModel = exerciseModel
+                                ))
 
-                                workoutLogbookViewModel.deleteIntensityComponent(
+                                workoutLogbookEvents(WorkoutLogbookEvents.DeleteIntensityComponent(
                                     intensityUnit = IntensityUnits.Forced,
                                     cycleNumber = exerciseScreenUIState.cycleIndex,
                                     workoutNumber = exerciseScreenUIState.workoutIndex,
                                     exerciseModel = exerciseModel
-                                )
-
+                                ))
 
                             }
                             else
                             {
-                                events(
+                                exerciseComponentEvents(
                                     ExerciseComponentEvents.IntensityComponentClicked(
                                         IntensityUnits.Positive
                                     )
                                 )
 
-                                workoutLogbookViewModel.addIntensityComponent(
+                                workoutLogbookEvents(WorkoutLogbookEvents.AddIntensityComponent(
                                     intensityUnit = IntensityUnits.Positive,
                                     cycleNumber = exerciseScreenUIState.cycleIndex,
                                     workoutNumber = exerciseScreenUIState.workoutIndex,
-                                    exerciseModel = exerciseModel!!
-                                )
+                                    exerciseModel = exerciseModel,
+                                    reps = posReps
+                                ))
+
                             }
                         }
                         // Static Click
                         1 -> {
+
                             if (exerciseComponentUIState.staticHoldClickable && !exerciseComponentUIState.staticClicked) {
-                                events(
+                                exerciseComponentEvents(
                                     ExerciseComponentEvents.IntensityComponentClicked(
                                         IntensityUnits.Static
                                     )
                                 )
                                 // Add static
-                                workoutLogbookViewModel.addIntensityComponent(
+                                workoutLogbookEvents(WorkoutLogbookEvents.AddIntensityComponent(
                                     intensityUnit = IntensityUnits.Static,
                                     cycleNumber = exerciseScreenUIState.cycleIndex,
                                     workoutNumber = exerciseScreenUIState.workoutIndex,
-                                    exerciseModel = exerciseModel!!
-                                )
+                                    exerciseModel = exerciseModel,
+                                    reps = statReps
+                                ))
 
                             }
-                            if (exerciseComponentUIState.staticHoldClickable && exerciseComponentUIState.staticClicked)
+                            else if (exerciseComponentUIState.staticHoldClickable && exerciseComponentUIState.staticClicked)
                             {
-                                events(
+                                exerciseComponentEvents(
                                     ExerciseComponentEvents.IntensityComponentClicked(
                                         IntensityUnits.Static
                                     )
                                 )
                                 //Delete Static
-                                workoutLogbookViewModel.deleteIntensityComponent(
+                                workoutLogbookEvents(WorkoutLogbookEvents.DeleteIntensityComponent(
                                     intensityUnit = IntensityUnits.Static,
                                     cycleNumber = exerciseScreenUIState.cycleIndex,
                                     workoutNumber = exerciseScreenUIState.workoutIndex,
-                                    exerciseModel = exerciseModel!!
-                                )
+                                    exerciseModel = exerciseModel
+                                ))
                             }
                             else
                             {
@@ -386,61 +445,65 @@ private fun IntensityExtension(
                         2 -> {
                             if (!exerciseComponentUIState.negativeClicked) {
                                 Log.i("negative click in add", exerciseComponentUIState.negativeClicked.toString())
-                                events(
+                                exerciseComponentEvents(
                                     ExerciseComponentEvents.IntensityComponentClicked(
                                         IntensityUnits.Negative
                                     )
                                 )
 
-                                workoutLogbookViewModel.addIntensityComponent(
+                                workoutLogbookEvents(WorkoutLogbookEvents.AddIntensityComponent(
                                     intensityUnit = IntensityUnits.Negative,
                                     cycleNumber = exerciseScreenUIState.cycleIndex,
                                     workoutNumber = exerciseScreenUIState.workoutIndex,
-                                    exerciseModel = exerciseModel!!
-                                )
+                                    exerciseModel = exerciseModel,
+                                    reps = negativeReps
+                                ))
                             }
                             else  {
                                 Log.i("negative click in delete", exerciseComponentUIState.negativeClicked.toString())
-                                events(
+                                exerciseComponentEvents(
                                     ExerciseComponentEvents.IntensityComponentClicked(
                                         IntensityUnits.Negative
                                     )
                                 )
-                                workoutLogbookViewModel.deleteIntensityComponent(
+                                //Delete Static
+                                workoutLogbookEvents(WorkoutLogbookEvents.DeleteIntensityComponent(
                                     intensityUnit = IntensityUnits.Negative,
                                     cycleNumber = exerciseScreenUIState.cycleIndex,
                                     workoutNumber = exerciseScreenUIState.workoutIndex,
-                                    exerciseModel = exerciseModel!!
-                                )
+                                    exerciseModel = exerciseModel
+                                ))
                             }
                         }
                         // Forced Click
                         3 -> {
                             if (exerciseComponentUIState.forcedClickable && !exerciseComponentUIState.forcedClicked && !exerciseComponentUIState.positiveClicked) {
-                                events(
+                                exerciseComponentEvents(
                                     ExerciseComponentEvents.IntensityComponentClicked(
                                         IntensityUnits.Forced
                                     )
                                 )
-                                workoutLogbookViewModel.addIntensityComponent(
+                                workoutLogbookEvents(WorkoutLogbookEvents.AddIntensityComponent(
                                     intensityUnit = IntensityUnits.Forced,
                                     cycleNumber = exerciseScreenUIState.cycleIndex,
                                     workoutNumber = exerciseScreenUIState.workoutIndex,
-                                    exerciseModel = exerciseModel!!
-                                )
+                                    exerciseModel = exerciseModel,
+                                    reps = forceReps
+                                ))
                             }
                             if (exerciseComponentUIState.forcedClickable && exerciseComponentUIState.forcedClicked) {
-                                events(
+                                exerciseComponentEvents(
                                     ExerciseComponentEvents.IntensityComponentClicked(
                                         IntensityUnits.Forced
                                     )
                                 )
-                                workoutLogbookViewModel.deleteIntensityComponent(
+                                //Delete Static
+                                workoutLogbookEvents(WorkoutLogbookEvents.DeleteIntensityComponent(
                                     intensityUnit = IntensityUnits.Forced,
                                     cycleNumber = exerciseScreenUIState.cycleIndex,
                                     workoutNumber = exerciseScreenUIState.workoutIndex,
-                                    exerciseModel = exerciseModel!!
-                                )
+                                    exerciseModel = exerciseModel
+                                ))
                             }
                             else {
                                 if(exerciseComponentUIState.positiveClicked){
@@ -453,15 +516,8 @@ private fun IntensityExtension(
                         }
                         //Pre Exhaust Click
                         4 -> {
-                            if (exerciseComponentUIState.preExhaustClickable) {
-
-//                            workoutLogbookViewModel.addIntensityComponent(
-//                                intensityUnit = IntensityUnits.PreExhaust,
-//                                cycleNumber = exerciseScreenUIState.cycleIndex,
-//                                workoutNumber = exerciseScreenUIState.workoutIndex,
-//                                exerciseModel = exerciseModel!!
-//                            )
-                            } else {
+                            if (exerciseComponentUIState.preExhaustClickable) { }
+                            else {
                                 Toast.makeText(
                                     context,
                                     "cannot select preExhaust",
@@ -555,19 +611,19 @@ private fun IntensityComponent(
 private fun ExerciseComponentPreview(){
     HeavyDutyTheme(dynamicColor = false) {
         ExerciseComponent(
-            exerciseScreenUIState = ExerciseScreenUIState(),
-           )
-    }
-}
-@Preview
-@Composable
-private fun IntensityComponentPreview(){
-    HeavyDutyTheme(dynamicColor = false) {
-        IntensityExtension(
-            events = {},
-            exerciseScreenUIState = ExerciseScreenUIState(),
-            workoutLogbookViewModel = hiltViewModel(),
-            exerciseComponentUIState = ExerciseComponentUIState(),)
+            exerciseModel = ExerciseModel(
+                exerciseNumber = 1,
+                exerciseName = "Exercise Preview",
+                exerciseType = "Compound",
+                weight = 0.0,
+                value = hashMapOf(IntensityUnits.Positive to 0),
+                previousReps = 0,
+                increasedRate = 0.0
+            ),
+            workoutLogbookEvents = {},
+            exerciseScreenUIState = ExerciseScreenUIState()
+
+        )
     }
 }
 
@@ -575,22 +631,54 @@ private fun IntensityComponentPreview(){
 @Composable
 private fun IntensityExtensionPreview(){
     HeavyDutyTheme(dynamicColor = false) {
+        IntensityExtension(
+            workoutLogbookEvents = {},
+            forceReps = "",
+            posReps = "",
+            negativeReps = "",
+            statReps = "",
+            exerciseComponentEvents = {},
+            exerciseScreenUIState = ExerciseScreenUIState(),
+            exerciseComponentUIState = ExerciseComponentUIState(),
+            exerciseModel = ExerciseModel(
+                0,
+                ""
+                , "",
+                0.0,
+                hashMapOf(IntensityUnits.Forced to 0),
+                0,
+                0.0
+            )
+        )
+    }
+}
+
+
+@Preview
+@Composable
+private fun IntensityComponentPreview(){
+    HeavyDutyTheme(dynamicColor = false) {
         IntensityComponent(onClick = {})
     }
 }
+
+
 @Preview
 @Composable
 private fun BodyRowPreview(){
     HeavyDutyTheme(dynamicColor = false) {
-        BodyRow()
+        BodyRow(
+            value = "",
+            onValueChange = {}
+        )
     }
 }
-
 
 @Preview
 @Composable
-private fun BodyPreview(){
+private fun HeaderRowPreview(){
     HeavyDutyTheme(dynamicColor = false) {
-        Body(exerciseComponentUIState = ExerciseComponentUIState())
+        HeaderRow()
     }
 }
+

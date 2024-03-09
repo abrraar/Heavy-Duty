@@ -3,7 +3,11 @@ package com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.addC
 interface AddCycleEvents {
     data class CycleSelected(val cycleIndex: Int): AddCycleEvents
     data class UseCycleClicked(
-        val key: String,
+        val screen: String,
         val clicked: Boolean,
-        val cycleName: String): AddCycleEvents
+        val cycleName: String = "",
+        ): AddCycleEvents
+    data class ConfirmClicked(
+        val cycleName: String
+    ):AddCycleEvents
 }

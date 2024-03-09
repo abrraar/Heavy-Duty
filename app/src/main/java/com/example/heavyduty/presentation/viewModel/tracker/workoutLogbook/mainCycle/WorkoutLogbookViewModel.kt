@@ -1,6 +1,7 @@
 package com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle
 
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,7 +9,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.heavyduty.data.local.tracker.workoutLogbook.mainCycle.WorkoutLogbookOfflineRepository
 import com.example.heavyduty.domain.model.tracker.workoutLogbook.Cycle
-import com.example.heavyduty.domain.model.tracker.workoutLogbook.ExerciseModel
+import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.cycle.CycleComponentUIState
+import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.cycle.CycleUIState
 import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.WorkoutUIState
 import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.exercise.screen.ExerciseScreenUIState
 import com.example.heavyduty.units.IntensityUnits
@@ -26,10 +28,10 @@ class WorkoutLogbookViewModel
     private val workoutLogbookOfflineRepository: WorkoutLogbookOfflineRepository
 ): ViewModel()
 {
-    private val _workoutLogbookUIState = MutableStateFlow(WorkoutLogbookUIState())
-    val workoutLogbookUIState = _workoutLogbookUIState.asStateFlow()
+    private val _cycleUIState = MutableStateFlow(CycleUIState())
+    val cycleUIState = _cycleUIState.asStateFlow()
 
-    var workoutLogbookComponentUIState by mutableStateOf(WorkoutLogbookComponentUIState())
+    var cycleComponentUIState by mutableStateOf(CycleComponentUIState())
         private set
 
     private var cycleList: List<Cycle> = listOf()
@@ -49,15 +51,16 @@ class WorkoutLogbookViewModel
         viewModelScope.launch {
             workoutLogbookOfflineRepository.getAllCycle().collectLatest{
                 it -> cycleList = it
-               _workoutLogbookUIState.update { it.copy( listOfCycle = cycleList ) }
+               _cycleUIState.update { it.copy( listOfCycle = cycleList ) }
                _workoutUIState.update { it.copy( listOfCycle = cycleList ) }
                _exerciseScreenUIState.update { it.copy( listOfCycle = cycleList ) }
             }
         }
     }
 
-    fun onEvents(events: WorkoutLogbookEvents) {
+    fun onWorkoutLogBookEvents(events: WorkoutLogbookEvents) {
         when(events){
+            // Workout and Exercise Screens
             is WorkoutLogbookEvents.CycleSelected -> {
                 _workoutUIState.update {
                     it.copy(
@@ -70,147 +73,177 @@ class WorkoutLogbookViewModel
                     )
                 }
             }
-
-            is WorkoutLogbookEvents.WorkoutSelected ->
+            // Exercise Screen
+            is WorkoutLogbookEvents.WorkoutSelected -> {
                 _exerciseScreenUIState.update {
                     it.copy(
                         workoutIndex = events.workoutIndex
                     )
                 }
-
-        }
-    }
-
-    fun onCycleDelete()
-    {
-
-    }
-
-    fun addIntensityComponent(intensityUnit: IntensityUnits, cycleNumber: Int, workoutNumber: Int, exerciseModel: ExerciseModel)
-    {
-        val cycle = cycleList
-        for ((index, exercise) in cycle[cycleNumber].cycleModel.listOfWorkout[workoutNumber].listOfExercise.withIndex()){
-            if(exerciseModel.exerciseNumber == exercise.exerciseNumber){
-                when(intensityUnit){
-
-                    IntensityUnits.Positive -> {
-
-                        if (!exerciseModel.value.containsKey(IntensityUnits.Positive)) {
-
-                            cycle[cycleNumber].cycleModel.listOfWorkout[workoutNumber].listOfExercise[index].value[IntensityUnits.Positive] = 0
-                            viewModelScope.launch {
-                                workoutLogbookOfflineRepository.updateCycle(cycle[cycleNumber])
-                            }
-                        }
-
+            }
+            // Cycle Screen
+            is WorkoutLogbookEvents.DeleteCycleClicked -> {
+                if (events.status == "PROMPT"){
+                    _cycleUIState.update {
+                        it.copy(
+                            deleteState = true
+                        )
                     }
+                }
+                if(events.status == "CONFIRM"){
+                    _cycleUIState.update {
+                        it.copy(
+                            deleteState = false
+                        )
+                    }
+                    onCycleDelete(events.cycle)
+                }
+                if(events.status == "CANCELLED"){
+                    _cycleUIState.update {
+                        it.copy(
+                            deleteState = false
+                        )
+                    }
+                }
 
-                    IntensityUnits.Static -> {
-                        // Remove Static
-                        if (!exerciseModel.value.containsKey(IntensityUnits.Static)) {
+            }
+            // Exercise Screen
+            is WorkoutLogbookEvents.AddIntensityComponent -> {
+                var repsInInt = 0
+                repsInInt = if(events.reps == "" || events.reps == "0"){ 0 } else { events.reps.toInt() }
 
-                            cycle[cycleNumber].cycleModel.listOfWorkout[workoutNumber].listOfExercise[index].value[IntensityUnits.Static] = 0
-                            viewModelScope.launch {
-                                workoutLogbookOfflineRepository.updateCycle(cycle[cycleNumber])
+                Log.i("repsInInt", repsInInt.toString())
+                val cycle = cycleList
+                for ((index, exercise) in cycle[events.cycleNumber].cycleModel.listOfWorkout[events.workoutNumber].listOfExercise.withIndex()){
+                    if(events.exerciseModel.exerciseNumber == exercise.exerciseNumber){
+                        when(events.intensityUnit){
+
+                            IntensityUnits.Positive -> {
+
+                                if (!events.exerciseModel.value.containsKey(IntensityUnits.Positive) || events.exerciseModel.value.containsKey(IntensityUnits.Positive)) {
+                                    cycle[events.cycleNumber].cycleModel.listOfWorkout[events.workoutNumber].listOfExercise[index].value[IntensityUnits.Positive] = repsInInt
+                                    viewModelScope.launch {
+                                        workoutLogbookOfflineRepository.updateCycle(cycle[events.cycleNumber])
+                                    }
+                                }
+
                             }
 
-                        }
+                            IntensityUnits.Static -> {
+                                // Remove Static
+                                if (!events.exerciseModel.value.containsKey(IntensityUnits.Static) || events.exerciseModel.value.containsKey(IntensityUnits.Static)) {
+                                    cycle[events.cycleNumber].cycleModel.listOfWorkout[events.workoutNumber].listOfExercise[index].value[IntensityUnits.Static]  = repsInInt
+                                    viewModelScope.launch {
+                                        workoutLogbookOfflineRepository.updateCycle(cycle[events.cycleNumber])
+                                    }
 
-                    }
+                                }
 
-                    IntensityUnits.Negative -> {
-                        // Remove Negative
-                        if (!exerciseModel.value.containsKey(IntensityUnits.Negative)) {
-
-                            cycle[cycleNumber].cycleModel.listOfWorkout[workoutNumber].listOfExercise[index].value[IntensityUnits.Negative] = 0
-                            viewModelScope.launch {
-                                workoutLogbookOfflineRepository.updateCycle(cycle[cycleNumber])
                             }
-                        }
 
-                    }
+                            IntensityUnits.Negative -> {
+                                // Remove Negative
+                                if (!events.exerciseModel.value.containsKey(IntensityUnits.Negative) || events.exerciseModel.value.containsKey(IntensityUnits.Negative)) {
 
-                    IntensityUnits.Forced -> {
-                        // Remove Forced
-                        if (!exerciseModel.value.containsKey(IntensityUnits.Forced)) {
+                                    cycle[events.cycleNumber].cycleModel.listOfWorkout[events.workoutNumber].listOfExercise[index].value[IntensityUnits.Negative]  = repsInInt
+                                    viewModelScope.launch {
+                                        workoutLogbookOfflineRepository.updateCycle(cycle[events.cycleNumber])
+                                    }
+                                }
 
-                            cycle[cycleNumber].cycleModel.listOfWorkout[workoutNumber].listOfExercise[index].value[IntensityUnits.Forced] = 0
-                            viewModelScope.launch {
-                                workoutLogbookOfflineRepository.updateCycle(cycle[cycleNumber])
                             }
+
+                            IntensityUnits.Forced -> {
+                                // Remove Forced
+                                if (!events.exerciseModel.value.containsKey(IntensityUnits.Forced) ||  events.exerciseModel.value.containsKey(IntensityUnits.Negative)) {
+
+                                    cycle[events.cycleNumber].cycleModel.listOfWorkout[events.workoutNumber].listOfExercise[index].value[IntensityUnits.Forced]  = repsInInt
+                                    viewModelScope.launch {
+                                        workoutLogbookOfflineRepository.updateCycle(cycle[events.cycleNumber])
+                                    }
+                                }
+
+                            }
+
+                            IntensityUnits.PreExhaust -> {}
                         }
-
                     }
-
-                    IntensityUnits.PreExhaust -> {}
                 }
             }
+            // Exercise Screen
+            is WorkoutLogbookEvents.DeleteIntensityComponent -> {
+                val cycle = cycleList
+                for ((index, exercise) in cycle[events.cycleNumber].cycleModel.listOfWorkout[events.workoutNumber].listOfExercise.withIndex()){
+                    if(events.exerciseModel.exerciseNumber == exercise.exerciseNumber){
+                        when(events.intensityUnit){
+
+                            IntensityUnits.Positive -> {
+                                if (events.exerciseModel.value.containsKey(IntensityUnits.Positive)) {
+
+                                    cycle[events.cycleNumber].cycleModel.listOfWorkout[events.workoutNumber].listOfExercise[index].value.remove(
+                                        IntensityUnits.Positive
+                                    )
+                                    viewModelScope.launch {
+                                        workoutLogbookOfflineRepository.updateCycle(cycle[events.cycleNumber])
+                                    }
+
+                                }
+                            }
+
+                            IntensityUnits.Static -> {
+
+                                if (events.exerciseModel.value.containsKey(IntensityUnits.Static)) {
+
+                                    cycle[events.cycleNumber].cycleModel.listOfWorkout[events.workoutNumber].listOfExercise[index].value.remove(IntensityUnits.Static)
+                                    viewModelScope.launch {
+                                        workoutLogbookOfflineRepository.updateCycle(cycle[events.cycleNumber])
+                                    }
+
+                                }
+
+                            }
+
+                            IntensityUnits.Negative -> {
+
+                                if (events.exerciseModel.value.containsKey(IntensityUnits.Negative)) {
+
+                                    cycle[events.cycleNumber].cycleModel.listOfWorkout[events.workoutNumber].listOfExercise[index].value.remove(IntensityUnits.Negative)
+                                    viewModelScope.launch {
+                                        workoutLogbookOfflineRepository.updateCycle(cycle[events.cycleNumber])
+                                    }
+
+                                }
+
+                            }
+
+                            IntensityUnits.Forced -> {
+                                // Remove Forced
+                                if (events.exerciseModel.value.containsKey(IntensityUnits.Forced)) {
+
+                                    cycle[events.cycleNumber].cycleModel.listOfWorkout[events.workoutNumber].listOfExercise[index].value.remove(IntensityUnits.Forced)
+                                    viewModelScope.launch {
+                                        workoutLogbookOfflineRepository.updateCycle(cycle[events.cycleNumber])
+                                    }
+
+                                }
+
+                            }
+
+                            IntensityUnits.PreExhaust -> {}
+                        }
+                    }
+                }
+            }
+
         }
     }
 
-    fun deleteIntensityComponent(intensityUnit: IntensityUnits, cycleNumber: Int, workoutNumber: Int, exerciseModel: ExerciseModel)
+    private fun onCycleDelete(cycle: Cycle)
     {
-        val cycle = cycleList
-        for ((index, exercise) in cycle[cycleNumber].cycleModel.listOfWorkout[workoutNumber].listOfExercise.withIndex()){
-            if(exerciseModel.exerciseNumber == exercise.exerciseNumber){
-                when(intensityUnit){
-
-                    IntensityUnits.Positive -> {
-                        if (exerciseModel.value.containsKey(IntensityUnits.Positive)) {
-
-                            cycle[cycleNumber].cycleModel.listOfWorkout[workoutNumber].listOfExercise[index].value.remove(
-                                IntensityUnits.Positive
-                            )
-                            viewModelScope.launch {
-                                workoutLogbookOfflineRepository.updateCycle(cycle[cycleNumber])
-                            }
-
-                        }
-                    }
-
-                    IntensityUnits.Static -> {
-
-                        if (exerciseModel.value.containsKey(IntensityUnits.Static)) {
-
-                            cycle[cycleNumber].cycleModel.listOfWorkout[workoutNumber].listOfExercise[index].value.remove(IntensityUnits.Static)
-                            viewModelScope.launch {
-                                workoutLogbookOfflineRepository.updateCycle(cycle[cycleNumber])
-                            }
-
-                        }
-
-                    }
-
-                    IntensityUnits.Negative -> {
-
-                        if (exerciseModel.value.containsKey(IntensityUnits.Negative)) {
-
-                            cycle[cycleNumber].cycleModel.listOfWorkout[workoutNumber].listOfExercise[index].value.remove(IntensityUnits.Negative)
-                            viewModelScope.launch {
-                                workoutLogbookOfflineRepository.updateCycle(cycle[cycleNumber])
-                            }
-
-                        }
-
-                    }
-
-                    IntensityUnits.Forced -> {
-                        // Remove Forced
-                        if (exerciseModel.value.containsKey(IntensityUnits.Forced)) {
-
-                            cycle[cycleNumber].cycleModel.listOfWorkout[workoutNumber].listOfExercise[index].value.remove(IntensityUnits.Forced)
-                            viewModelScope.launch {
-                                workoutLogbookOfflineRepository.updateCycle(cycle[cycleNumber])
-                            }
-
-                        }
-
-                    }
-
-                    IntensityUnits.PreExhaust -> {}
-                }
-            }
+        viewModelScope.launch {
+            workoutLogbookOfflineRepository.deleteCycle(cycle)
         }
+        getCycle()
     }
 
 

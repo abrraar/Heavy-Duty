@@ -159,7 +159,6 @@ private fun Body(){
                         )
                     }
                     // This is where the records are selected and displayed
-
                     Column(
                         modifier = Modifier
                             .height(
@@ -171,7 +170,16 @@ private fun Body(){
                             )
                             .fillMaxWidth(1f)
                             .background(color = ScreenBackgroundColor)
-                            .clickable { },
+                            .clickable(
+                                onClick = {
+                                    when (index) {
+                                        0 -> {}
+                                        1 -> {}
+                                        2 -> {}
+                                        else -> {}
+                                    }
+                                }
+                            ),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = if (index<2) {Arrangement.Center} else {Arrangement.Top},
 
@@ -314,7 +322,6 @@ private fun Graph(
                 })
         }
     }
-
 }
 
 
@@ -410,7 +417,7 @@ private fun GraphStatus(
     }
 }
 
-//--------------- Start Of Graph Navigation ------------------------
+//---------------------- Start Of Graph Navigation ------------------------
 
 @Composable
 fun RecordsListAndRecordEntry(

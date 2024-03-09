@@ -1,4 +1,4 @@
-package com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.mainCycle
+package com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.mainCycle.cycle
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -15,7 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.heavyduty.presentation.view.util.searchBars.RecycleBinSearchBar
 import com.example.heavyduty.presentation.view.theme.ScreenBackgroundColor
-import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.WorkoutLogbookComponentUIState
+import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.cycle.CycleComponentUIState
 
 @Composable
 fun WorkoutLogBookRecycleBin(){
@@ -32,7 +32,10 @@ fun WorkoutLogBookRecycleBin(){
             horizontalAlignment = Alignment.CenterHorizontally){
             items(2){
                 Spacer(modifier = Modifier.padding(bottom = 20.dp))
-                Component(workoutLogbookComponentUIState = WorkoutLogbookComponentUIState())
+                Component(
+                    deleteBtn = {},
+                    cycleComponentUIState = CycleComponentUIState()
+                )
             }
         }
     }

@@ -18,13 +18,11 @@ import com.example.heavyduty.navigation.NavigationScreenNames
 import com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.addCycle.ViewCycle
 import com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.addCycle.ViewExercise
 import com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.addCycle.ViewWorkout
-import com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.mainCycle.WorkoutLogBookScreen
+import com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.mainCycle.cycle.CycleScreen
 import com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.mainCycle.workout.WorkoutScreen
 import com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.mainCycle.workout.exercise.ExerciseScreen
 import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.addCycle.AddCycleViewModel
 import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.WorkoutLogbookViewModel
-import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.exercise.component.ExerciseComponentViewModel
-import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.exercise.screen.ExerciseScreenUIState
 
 
 fun NavGraphBuilder.workoutLogbookGraph(
@@ -39,12 +37,12 @@ fun NavGraphBuilder.workoutLogbookGraph(
         composable(route = NavigationScreenNames.WorkoutLogbook.route )
         {
             val workoutLogbookViewModel = it.sharedViewModel<WorkoutLogbookViewModel>(navController = navHostController)
-            val workoutLogbookComponentUIState = workoutLogbookViewModel.workoutLogbookComponentUIState
-            val workoutLogbookUIState by workoutLogbookViewModel.workoutLogbookUIState.collectAsState()
-            WorkoutLogBookScreen(
-                events = workoutLogbookViewModel::onEvents,
-                workoutLogbookComponentUIState = workoutLogbookComponentUIState,
-                workoutLogbookUIState = workoutLogbookUIState,
+            val cycleComponentUIState = workoutLogbookViewModel.cycleComponentUIState
+            val cycleUIState by workoutLogbookViewModel.cycleUIState.collectAsState()
+            CycleScreen(
+                events = workoutLogbookViewModel::onWorkoutLogBookEvents,
+                cycleComponentUIState = cycleComponentUIState,
+                cycleUIState = cycleUIState,
                 navHostController = navHostController)
         }
 
@@ -53,7 +51,7 @@ fun NavGraphBuilder.workoutLogbookGraph(
             val workoutLogbookViewModel = it.sharedViewModel<WorkoutLogbookViewModel>(navController = navHostController)
             val workoutUIState by workoutLogbookViewModel.workoutUIState.collectAsState()
             WorkoutScreen(
-                events = workoutLogbookViewModel::onEvents,
+                events = workoutLogbookViewModel::onWorkoutLogBookEvents,
                 workoutUIState = workoutUIState,
                 navHostController = navHostController)
         }
@@ -64,7 +62,7 @@ fun NavGraphBuilder.workoutLogbookGraph(
             val exerciseScreenUIState by workoutLogbookViewModel.exerciseScreenUIState.collectAsState()
 
             ExerciseScreen(
-                workoutLogbookViewModel = workoutLogbookViewModel,
+                events = workoutLogbookViewModel::onWorkoutLogBookEvents,
                 exerciseScreenUIState = exerciseScreenUIState,)
         }
 

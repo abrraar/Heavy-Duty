@@ -43,6 +43,7 @@ fun ViewWorkout(
     onNavigate: (Int) -> Unit,
     navHostController: NavHostController)
 {
+
     Column(
         modifier = Modifier
             .fillMaxHeight(1f)
@@ -53,7 +54,7 @@ fun ViewWorkout(
     ){
         Row(modifier = Modifier
             .clickable {
-                events(AddCycleEvents.UseCycleClicked("workout",true, listOfDefaultCycle[routeCycle].cycleName))
+                events(AddCycleEvents.UseCycleClicked("workout",true, listOfDefaultCycle[routeCycle].cycleName ))
             }
             .fillMaxWidth(1f)
             .height(60.dp)
@@ -115,6 +116,7 @@ fun ViewWorkout(
             titleText = "Add Cycle",
             message = "Do you want to use\n" + viewWorkoutUIState.cycleName,
             onConfirm = {
+                events(AddCycleEvents.ConfirmClicked(listOfDefaultCycle[routeCycle].cycleName))
                 navHostController.navigate(NavigationScreenNames.WorkoutLogbook.route) {
                     popUpTo(NavigationScreenNames.ViewCycle.route) {
                         inclusive = true
@@ -124,7 +126,7 @@ fun ViewWorkout(
 
             },
             onCancel = {
-                events(AddCycleEvents.UseCycleClicked("workout",false, ""))
+                events(AddCycleEvents.UseCycleClicked("workout", false, ""))
             }
         )
     }

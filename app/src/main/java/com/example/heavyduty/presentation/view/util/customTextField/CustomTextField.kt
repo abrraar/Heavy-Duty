@@ -7,16 +7,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,12 +24,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.example.heavyduty.presentation.view.theme.HeavyDutyTheme
-import com.patrykandpatrick.vico.core.extension.setFieldValue
 
 
 @Composable
 fun CustomTextField(
     modifier: Modifier = Modifier,
+    value: String = "",
+    onValueChange: (String) -> Unit = {},
     leadingIcon: (@Composable () -> Unit)? = null,
     prefixText: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
@@ -51,7 +47,7 @@ fun CustomTextField(
     singleLine: Boolean = false,
     keyboardActions: KeyboardActions = KeyboardActions()
 ) {
-    var text by rememberSaveable { mutableStateOf("") }
+
     BasicTextField(
         keyboardActions = keyboardActions ,
         keyboardOptions = KeyboardOptions(
@@ -63,10 +59,8 @@ fun CustomTextField(
                 shape = MaterialTheme.shapes.medium,
             )
             .fillMaxWidth(),
-        value = text,
-        onValueChange = {
-            text = it
-        },
+        value = value,
+        onValueChange = { onValueChange(it) },
         singleLine = singleLine,
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
         textStyle = TextStyle(
@@ -87,7 +81,7 @@ fun CustomTextField(
                         .weight(1f)
                         .padding(5.dp),
                     contentAlignment = textPosition) {
-                    if (text.isEmpty())
+                    if (value.isEmpty())
                         Text(
                             text = placeholderText,
                             color = placeholderColor,

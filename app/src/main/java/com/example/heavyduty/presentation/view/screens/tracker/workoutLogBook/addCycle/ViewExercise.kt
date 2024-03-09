@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.heavyduty.data.local.tracker.workoutLogbook.addCycle.defaultData.listOfDefaultCycle
@@ -33,7 +32,7 @@ import com.example.heavyduty.presentation.view.theme.HeavyDutyTheme
 import com.example.heavyduty.presentation.view.util.prompts.Prompt
 import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.addCycle.AddCycleEvents
 import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.addCycle.ViewExerciseUIState
-import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.exercise.component.ExerciseComponentUIState
+import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.exercise.screen.ExerciseScreenUIState
 
 @Composable
 fun ViewExercise(
@@ -54,13 +53,7 @@ fun ViewExercise(
     ){
         Row(modifier = Modifier
             .clickable {
-                events(
-                    AddCycleEvents.UseCycleClicked(
-                        "exercise",
-                        true,
-                        listOfDefaultCycle[viewExerciseUIState.cycleIndexSelected].cycleName
-                    )
-                )
+                events(AddCycleEvents.UseCycleClicked("exercise", true, listOfDefaultCycle[viewExerciseUIState.cycleIndexSelected].cycleName))
             }
             .fillMaxWidth(1f)
             .height(60.dp)
@@ -83,6 +76,8 @@ fun ViewExercise(
                 Spacer(modifier = Modifier.padding(top = 7.dp))
                 ExerciseComponent(
                     exerciseModel = it,
+                    workoutLogbookEvents = {},
+                    exerciseScreenUIState = ExerciseScreenUIState(),
                     exerciseNameStyle = MaterialTheme.typography.headlineSmall,
                     showDetails = false)
                 Spacer(modifier = Modifier.padding(bottom = 7.dp))
@@ -94,6 +89,7 @@ fun ViewExercise(
             titleText = "Add Cycle",
             message = "Do you want to use\n" + viewExerciseUIState.cycleName,
             onConfirm = {
+                events(AddCycleEvents.ConfirmClicked(listOfDefaultCycle[viewExerciseUIState.cycleIndexSelected].cycleName))
                 navHostController.navigate(NavigationScreenNames.WorkoutLogbook.route) {
                     popUpTo(NavigationScreenNames.ViewCycle.route) {
                         inclusive = true
@@ -101,7 +97,7 @@ fun ViewExercise(
                 }
             },
             onCancel = {
-                events(AddCycleEvents.UseCycleClicked("exercise",false, ""))
+                events(AddCycleEvents.UseCycleClicked("exercise", false, ""))
             }
         )
     }

@@ -1,7 +1,6 @@
 package com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.addCycle
 
 import android.util.Log
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.heavyduty.data.local.tracker.workoutLogbook.addCycle.AddCycleOfflineRepository
@@ -11,10 +10,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.getAndUpdate
-
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -77,39 +74,37 @@ class AddCycleViewModel
             is AddCycleEvents.CycleSelected ->
                getCycleIndex(events.cycleIndex)
 
-            is AddCycleEvents.UseCycleClicked ->
-                when(events.key){
-                    "cycle" -> {
+            is AddCycleEvents.UseCycleClicked -> {
+                when(events.screen){
+                    "cycle"->{
                         _cycleState.update {
-                            it.copy(
-                                useCycle = events.clicked,
-                                cycleName = events.cycleName
-                            )
-                        }
-                        enterCycle(events.cycleName)
-                    }
-                    "workout" -> {
+                        it.copy(
+                            useCycle = events.clicked,
+                            cycleName = events.cycleName
+                        )
+                    }}
+                    "workout"->{
                         _workoutState.update {
                             it.copy(
                                 useCycle = events.clicked,
                                 cycleName = events.cycleName
                             )
                         }
-                        enterCycle(events.cycleName)
                     }
-
-                    "exercise" -> {
+                    "exercise"->{
                         _exerciseState.update {
                             it.copy(
                                 useCycle = events.clicked,
                                 cycleName = events.cycleName
                             )
                         }
-                        enterCycle(events.cycleName)
                     }
                 }
 
+            }
+            is AddCycleEvents.ConfirmClicked -> {
+                enterCycle(events.cycleName)
+            }
         }
-
     }
 }

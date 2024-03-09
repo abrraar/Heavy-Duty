@@ -1,4 +1,4 @@
-package com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.mainCycle
+package com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.mainCycle.cycle
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,25 +25,27 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.heavyduty.R
 import com.example.heavyduty.presentation.view.theme.HeavyDutyTheme
-import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.WorkoutLogbookComponentUIState
+import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.cycle.CycleComponentUIState
 
 
 @Composable
 fun Component(
     modifier: Modifier = Modifier,
+    deleteBtn: () -> Unit,
     cycleNumber: String = "1",
     cycleName: String = "Cycle Name",
     overallProgress: String = "10",
     startDate: String = "dd/mm/yy",
     endDate: String = "dd/mm/yy",
-    workoutLogbookComponentUIState: WorkoutLogbookComponentUIState){
+    cycleComponentUIState: CycleComponentUIState
+){
 
     Column(
         modifier = modifier
             .shadow(elevation = 10.dp, shape = RoundedCornerShape(20.dp))
             .width(350.dp)
             .height(220.dp)
-            .background(color = workoutLogbookComponentUIState.color, shape = RoundedCornerShape(20.dp)),
+            .background(color = cycleComponentUIState.color, shape = RoundedCornerShape(20.dp)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ){
@@ -58,7 +60,7 @@ fun Component(
                 contentDescription = "",
                 modifier = Modifier
                     .padding(end = 10.dp, top = 10.dp)
-                    .clickable { },
+                    .clickable(onClick = deleteBtn),
                 tint = Color.White
             )
 
@@ -143,7 +145,10 @@ fun Component(
 @Composable
 private fun ComponentPreview(){
     HeavyDutyTheme(dynamicColor = false) {
-        Component(workoutLogbookComponentUIState = WorkoutLogbookComponentUIState())
+        Component(
+            deleteBtn = {},
+            cycleComponentUIState = CycleComponentUIState()
+        )
     }
 
 }

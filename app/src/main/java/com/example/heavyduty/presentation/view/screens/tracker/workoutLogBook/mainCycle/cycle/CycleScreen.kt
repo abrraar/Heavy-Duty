@@ -1,4 +1,4 @@
-package com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.mainCycle
+package com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.mainCycle.cycle
 
 
 import androidx.compose.foundation.background
@@ -11,14 +11,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -27,19 +25,18 @@ import com.example.heavyduty.navigation.NavigationScreenNames
 import com.example.heavyduty.presentation.view.theme.HeavyDutyTheme
 import com.example.heavyduty.presentation.view.util.searchBars.SearchBar
 import com.example.heavyduty.presentation.view.theme.ScreenBackgroundColor
-import com.example.heavyduty.presentation.view.theme.Red
-import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.WorkoutLogbookComponentUIState
+import com.example.heavyduty.presentation.view.util.prompts.Prompt
+import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.cycle.CycleComponentUIState
 import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.WorkoutLogbookEvents
-import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.WorkoutLogbookUIState
+import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.cycle.CycleUIState
 
 @Composable
-fun WorkoutLogBookScreen(
+fun CycleScreen(
     events: (WorkoutLogbookEvents) -> Unit,
-    workoutLogbookComponentUIState: WorkoutLogbookComponentUIState,
-    workoutLogbookUIState: WorkoutLogbookUIState,
+    cycleComponentUIState: CycleComponentUIState,
+    cycleUIState: CycleUIState,
     navHostController: NavHostController
 ){
-
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             modifier = Modifier
@@ -67,7 +64,7 @@ fun WorkoutLogBookScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (workoutLogbookUIState.listOfCycle.isEmpty())
+            if (cycleUIState.listOfCycle.isEmpty())
             {
                 Text(
                     style = MaterialTheme.typography.headlineSmall,
@@ -82,7 +79,7 @@ fun WorkoutLogBookScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 )
                 {
-                    itemsIndexed(workoutLogbookUIState.listOfCycle)
+                    itemsIndexed(cycleUIState.listOfCycle)
                     {
                     index, it ->
                         val cycleNum = index + 1
@@ -98,7 +95,10 @@ fun WorkoutLogBookScreen(
                             overallProgress = it.cycleModel.overallProgress.toString(),
                             startDate = it.cycleModel.startDate,
                             endDate = it.cycleModel.endDate,
-                            workoutLogbookComponentUIState = workoutLogbookComponentUIState,
+                            cycleComponentUIState = cycleComponentUIState,
+                            deleteBtn = {
+                                events(WorkoutLogbookEvents.DeleteCycleClicked("PROMPT"))
+                            },
                             modifier = Modifier
                                 .padding(top = 15.dp, bottom = 15.dp)
                                 .clickable {
@@ -108,12 +108,23 @@ fun WorkoutLogBookScreen(
                                     )
                                 }
                         )
+
+                        if (cycleUIState.deleteState){
+                            Prompt(
+                                titleText = "Delete Cycle",
+                                message = "Do you want to delete ${it.cycleModel.cycleName} ?",
+                                onCancel = {
+                                    events(WorkoutLogbookEvents.DeleteCycleClicked("CANCELLED"))
+                                },
+                                onConfirm = {
+                                    events(WorkoutLogbookEvents.DeleteCycleClicked("CONFIRM", it))
+                                }
+                            )
+                        }
                     }
                 }
             }
         }
-
-
     }
 }
 
@@ -123,10 +134,10 @@ fun WorkoutLogBookScreen(
 @Composable
 private fun WorkoutLogBookScreenPreview(){
     HeavyDutyTheme(dynamicColor = false) {
-        WorkoutLogBookScreen(
+        CycleScreen(
             events = {},
-            workoutLogbookComponentUIState = WorkoutLogbookComponentUIState(),
-            workoutLogbookUIState = WorkoutLogbookUIState(),
+            cycleComponentUIState = CycleComponentUIState(),
+            cycleUIState = CycleUIState(),
             rememberNavController())
     }
 

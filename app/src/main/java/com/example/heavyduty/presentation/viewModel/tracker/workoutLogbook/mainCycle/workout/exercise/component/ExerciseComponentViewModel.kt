@@ -1,6 +1,7 @@
 package com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.exercise.component
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.example.heavyduty.domain.model.tracker.workoutLogbook.ExerciseModel
@@ -22,6 +23,7 @@ class ExerciseComponentViewModel
     private val _exerciseComponentUIState = MutableStateFlow(ExerciseComponentUIState())
     val exerciseComponentUIState = _exerciseComponentUIState.asStateFlow()
     private val listOfIntensityComponentName = mutableListOf(IntensityUnits.Positive)
+
 
     init {
         updateState()
@@ -51,6 +53,7 @@ class ExerciseComponentViewModel
                     positiveRepColor = BrightGreen,
                     positiveText = "Added",
                     positiveClicked = false,
+                    positiveNum = mutableStateOf(exerciseModel.value[IntensityUnits.Positive].toString()) ,
                     listOfIntensityComponentName = listOfIntensityComponentName
                 )
             }
@@ -123,6 +126,7 @@ class ExerciseComponentViewModel
                     staticHoldColor = BrightGreen,
                     staticHoldText = "Added",
                     staticClicked = true,
+                    staticNum = mutableStateOf(exerciseModel.value[IntensityUnits.Static].toString()),
 
                     forcedClickable = false,
                     forcedColor = Color.Red,
@@ -152,6 +156,7 @@ class ExerciseComponentViewModel
                     addIntensityToList(IntensityUnits.Forced)
                     _exerciseComponentUIState.update {
                         it.copy(
+                            forceNum = mutableStateOf(exerciseModel.value[IntensityUnits.Forced].toString()),
                             forcedText = "Added",
                             forcedColor = BrightGreen,
                             forcedClickable = true,
@@ -191,6 +196,7 @@ class ExerciseComponentViewModel
                     negativeColor = BrightGreen,
                     negativeText = "Added",
                     negativeClicked = true,
+                    negativeNum = mutableStateOf(exerciseModel.value[IntensityUnits.Negative].toString()),
 
                     listOfIntensityComponentName = listOfIntensityComponentName
                 )
@@ -217,6 +223,7 @@ class ExerciseComponentViewModel
             addIntensityToList(IntensityUnits.Forced)
             _exerciseComponentUIState.update {
                 it.copy(
+                    forceNum = mutableStateOf(exerciseModel.value[IntensityUnits.Forced].toString()),
                     forcedColor = BrightGreen,
                     forcedText = "Added",
                     forcedClicked = true,
@@ -277,11 +284,44 @@ class ExerciseComponentViewModel
 
     }
 
+    /**
+     * Only valid inputs
+     * */
+    fun inputRestriction(intensityUnits: IntensityUnits, number: String): String
+    {
+        val limit = 2
+        val staticLimit = 3
+        var emptyValue = ""
 
+        if (number == "null"|| number == "0" || number == "."){emptyValue = ""}
+
+        Log.i("Number", number)
+
+
+        // Check the size and delete if greater
+        if(emptyValue.length > limit && intensityUnits != IntensityUnits.Static){
+            for(num in number){
+                emptyValue = number.substring( 0, number.length -1)
+            }
+        }
+
+
+        if(emptyValue.length > staticLimit && intensityUnits == IntensityUnits.Static){
+            for(num in number){
+                emptyValue = number.substring( 0, number.length -1)
+            }
+        }
+
+
+        return emptyValue
+    }
+
+    /**
+     * Exercise Components events
+     * */
     fun onExerciseComponentEvent(events: ExerciseComponentEvents){
         when(events){
-            is ExerciseComponentEvents.IntensityComponentClicked ->
-               {
+            is ExerciseComponentEvents.IntensityComponentClicked -> {
                    when(events.component)
                    {
                        IntensityUnits.Positive -> {
@@ -511,6 +551,7 @@ class ExerciseComponentViewModel
                    }
                }
         }
+
     }
 
 

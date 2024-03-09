@@ -44,7 +44,6 @@ fun ViewCycle(
     onNavigate: (Int) -> Unit,
     navHostController: NavHostController,
 ){
-
     Column(
         modifier = Modifier
             .fillMaxHeight(1f)
@@ -117,8 +116,7 @@ fun ViewCycle(
                                     Log.i("Cycle Index from Cycle", index.toString())
                                     events(AddCycleEvents.CycleSelected(index))
                                     onNavigate.invoke(index)
-                                }
-                                )
+                                })
                                 .weight(1f)
                                 .height(50.dp))
                         {
@@ -138,6 +136,7 @@ fun ViewCycle(
             titleText = "Add Cycle",
             message = "Do you want to use\n" + viewCycleUIState.cycleName,
             onConfirm = {
+                events(AddCycleEvents.ConfirmClicked(viewCycleUIState.cycleName))
                 navHostController.navigate(NavigationScreenNames.WorkoutLogbook.route) {
                     popUpTo(NavigationScreenNames.ViewCycle.route) {
                         inclusive = true
@@ -145,7 +144,7 @@ fun ViewCycle(
                 }
             },
             onCancel = {
-                events(AddCycleEvents.UseCycleClicked("cycle",false, ""))
+                events(AddCycleEvents.UseCycleClicked("cycle",false,""))
             }
         )
     }

@@ -9,26 +9,29 @@ val exerciseOne by lazy {
             ExerciseModel(
                 exerciseNumber = 1,
                 exerciseName = ExerciseList.SQUATS.exerciseName,
+                exerciseType = ExerciseList.SQUATS.exerciseType,
+                weight = 0.0,
                 value = hashMapOf(IntensityUnits.Positive to 0),
                 previousReps = 0,
                 increasedRate = 0.0,
-                exerciseType = ExerciseList.SQUATS.exerciseType,
             ),
             ExerciseModel(
                 exerciseNumber = 2,
                 exerciseName = ExerciseList.PALMSUPPULLDOWN.exerciseName,
+                exerciseType = ExerciseList.PALMSUPPULLDOWN.exerciseType,
+                weight = 0.0,
                 value = hashMapOf(IntensityUnits.Positive to 0),
                 previousReps = 0,
                 increasedRate = 0.0,
-                exerciseType = ExerciseList.PALMSUPPULLDOWN.exerciseType,
             ),
             ExerciseModel(
                 exerciseNumber = 3,
                 exerciseName = ExerciseList.DIPS.exerciseName,
+                exerciseType = ExerciseList.DIPS.exerciseType,
+                weight = 0.0,
                 value = hashMapOf(IntensityUnits.Positive to 0),
                 previousReps = 0,
                 increasedRate = 0.0,
-                exerciseType = ExerciseList.DIPS.exerciseType,
             )
         )
     }
@@ -37,25 +40,28 @@ val exerciseOne by lazy {
         ExerciseModel(
             exerciseNumber = 1,
             exerciseName = ExerciseList.DEADLIFTS.exerciseName,
+            exerciseType = ExerciseList.DEADLIFTS.exerciseType,
+            weight = 0.0,
             value = hashMapOf(IntensityUnits.Positive to 0),
             previousReps = 0,
             increasedRate = 0.0,
-            exerciseType = ExerciseList.DEADLIFTS.exerciseType,
         ),
         ExerciseModel(
             exerciseNumber = 2,
             exerciseName = ExerciseList.PRESSBEHINDTHENECK.exerciseName,
+            exerciseType =  ExerciseList.PRESSBEHINDTHENECK.exerciseType,
+            weight = 0.0,
             value = hashMapOf(IntensityUnits.Positive to 0),
             previousReps = 0,
             increasedRate = 0.0,
-            exerciseType =  ExerciseList.PRESSBEHINDTHENECK.exerciseType,
         ),
         ExerciseModel(
             exerciseNumber = 3,
             exerciseName =  ExerciseList.STANDINGCALVESRAISES.exerciseName,
+            exerciseType = ExerciseList.STANDINGCALVESRAISES.exerciseType,
+            weight = 0.0,
             value = hashMapOf(IntensityUnits.Positive to 0),
             previousReps = 0,
             increasedRate = 0.0,
-            exerciseType = ExerciseList.STANDINGCALVESRAISES.exerciseType,
         )
     ) }

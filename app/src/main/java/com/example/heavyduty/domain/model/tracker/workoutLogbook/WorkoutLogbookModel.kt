@@ -2,13 +2,6 @@ package com.example.heavyduty.domain.model.tracker.workoutLogbook
 
 import com.example.heavyduty.units.IntensityUnits
 import com.example.heavyduty.units.Muscles
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import java.io.Serializable
-import java.util.Date
-import javax.inject.Singleton
 
 
 data class CycleModel(
@@ -33,6 +26,7 @@ data class ExerciseModel(
     val exerciseNumber: Int,
     val exerciseName: String,
     val exerciseType: String,
+    val weight: Double,
     val value: HashMap<IntensityUnits, Int>,
     val previousReps: Int,
     val increasedRate: Double
