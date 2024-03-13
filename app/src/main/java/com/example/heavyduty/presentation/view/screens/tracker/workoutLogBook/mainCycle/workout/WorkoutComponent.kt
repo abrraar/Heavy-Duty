@@ -1,6 +1,7 @@
 package com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.mainCycle.workout
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -11,22 +12,27 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.heavyduty.R
 import com.example.heavyduty.presentation.view.theme.HeavyDutyTheme
 
 @Composable
 fun WorkoutComponent(
     modifier: Modifier = Modifier,
     numOfText: Int = 3,
+    deleteEnable: Boolean = true,
+    deleteClick: () -> Unit,
     textStyle: TextStyle = MaterialTheme.typography.titleSmall,
     workoutName: String = "Exercise Name",
     workoutDate: String = "Exercise Date",
@@ -60,14 +66,35 @@ fun WorkoutComponent(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {
-                Text(
-                    style = headerStyle,
-                    text = "Workout $workoutNumber",
-                    color = Color.White,
-                    modifier = Modifier.padding(start = 15.dp))
+                Row(modifier.fillMaxWidth(1f)) {
+                    Column(
+                        modifier.weight(1f)
+                    ) {
+                        Text(
+                            style = headerStyle,
+                            text = "Workout $workoutNumber",
+                            color = Color.White,
+                            modifier = Modifier.padding(start = 15.dp))
+                    }
+                    if(deleteEnable){
+                        Column(
+                            modifier.weight(1f).padding(end = 15.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.End
+                        ){
+                            Icon(
+                                modifier = Modifier.clickable(onClick = deleteClick),
+                                painter = painterResource(id = R.drawable.delete_icn),
+                                contentDescription = null )
+                        }
+                    }
+
+                }
             }
             LazyRow(
-                modifier = Modifier.fillMaxWidth(1f).height(100.dp),
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .height(100.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ){
@@ -121,7 +148,13 @@ private fun CustomColumn(
     text: String){
     Column(
         modifier = Modifier
-            .width(if (numOfText == 3){120.dp}else{360.dp})
+            .width(
+                if (numOfText == 3) {
+                    120.dp
+                } else {
+                    360.dp
+                }
+            )
             .height(110.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -140,7 +173,9 @@ private fun CustomColumn(
 @Composable
 private fun ComponentPreview(){
     HeavyDutyTheme(dynamicColor = false) {
-        WorkoutComponent(header = true, bodyColor = Color.Black)
+        WorkoutComponent(
+            deleteClick = {},
+            header = true, bodyColor = Color.Black)
     }
 
 }
@@ -148,5 +183,5 @@ private fun ComponentPreview(){
 @Preview
 @Composable
 private fun ComponentPreviewWithoutHeader(){
-    WorkoutComponent(header = false, bodyColor = Color.LightGray)
+    WorkoutComponent(header = false, bodyColor = Color.LightGray, deleteClick = {})
 }

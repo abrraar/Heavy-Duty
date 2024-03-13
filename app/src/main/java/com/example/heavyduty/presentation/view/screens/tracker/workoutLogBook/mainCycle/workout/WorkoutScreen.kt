@@ -20,8 +20,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.heavyduty.navigation.NavigationScreenNames
 import com.example.heavyduty.presentation.view.util.searchBars.SearchBar
 import com.example.heavyduty.presentation.view.theme.ScreenBackgroundColor
+import com.example.heavyduty.presentation.view.util.prompts.Prompt
 import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.WorkoutLogbookEvents
 import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.WorkoutUIState
+import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.exercise.component.ExerciseComponentEvents
 
 @Composable
 fun WorkoutScreen(
@@ -29,6 +31,25 @@ fun WorkoutScreen(
     workoutUIState: WorkoutUIState,
     navHostController: NavHostController
 ){
+    if(workoutUIState.deleteClicked){
+        Prompt(
+            titleText = "Delete Exercise",
+            message = "Do you want to delete\n" + workoutUIState.workoutModel!!.workoutName ,
+            onConfirm = {
+                events(WorkoutLogbookEvents.WorkoutDelete(
+                    cycleNumber = workoutUIState.cycleIndex,
+                    workoutModel = workoutUIState.workoutModel,
+                ))
+                events(WorkoutLogbookEvents.WorkoutDeleteClicked(
+                    isClicked = false))
+            },
+            onCancel = {
+                events(WorkoutLogbookEvents.WorkoutDeleteClicked(
+                    isClicked = false))
+            }
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth(1f)
@@ -43,6 +64,13 @@ fun WorkoutScreen(
                 index, it ->
                 Spacer(modifier = Modifier.padding(bottom = 15.dp))
                 WorkoutComponent(
+                    deleteEnable = true,
+                    deleteClick = {
+                        events(WorkoutLogbookEvents.WorkoutDeleteClicked(
+                            workoutModel = it,
+                            isClicked = true))
+
+                    },
                     workoutNumber = it.workoutNumber,
                     workoutName = it.workoutName,
                     workoutDate = it.datePerformed,

@@ -3,6 +3,7 @@ package com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.main
 import com.example.heavyduty.data.local.tracker.workoutLogbook.addCycle.defaultData.listOfDefaultCycle
 import com.example.heavyduty.domain.model.tracker.workoutLogbook.Cycle
 import com.example.heavyduty.domain.model.tracker.workoutLogbook.ExerciseModel
+import com.example.heavyduty.domain.model.tracker.workoutLogbook.WorkoutModel
 import com.example.heavyduty.units.IntensityUnits
 
 interface WorkoutLogbookEvents {
@@ -27,4 +28,21 @@ interface WorkoutLogbookEvents {
         val workoutNumber: Int,
         val exerciseModel: ExerciseModel
     ) : WorkoutLogbookEvents
+
+    data class DeleteExercise(
+        val cycleNumber: Int,
+        val workoutNumber: Int,
+        val exerciseModel: ExerciseModel
+    ): WorkoutLogbookEvents
+
+    data class WorkoutDelete(
+        val cycleNumber: Int,
+        val workoutModel: WorkoutModel,
+    ): WorkoutLogbookEvents
+
+    data class WorkoutDeleteClicked(
+        val workoutModel: WorkoutModel? = null,
+        val isClicked: Boolean = false
+    ): WorkoutLogbookEvents
+
 }

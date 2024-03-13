@@ -4,5 +4,16 @@ import androidx.lifecycle.ViewModel
 import com.example.heavyduty.data.local.tracker.workoutLogbook.mainCycle.WorkoutLogbookOfflineRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
+
+class WorkoutViewModel: ViewModel(){
+
+    fun workoutEvents(events: WorkoutEvents){
+        when(events){
+
+        }
+
+    }
+}
 

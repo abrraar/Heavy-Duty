@@ -3,13 +3,11 @@ package com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.mai
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.heavyduty.data.local.tracker.bodyComposition.main.BodyCompositionOfflineRepository
-import com.example.heavyduty.data.local.tracker.bodyComposition.main.BodyCompositionRepository
 import com.patrykandpatrick.vico.core.axis.AxisPosition
 import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
 import com.patrykandpatrick.vico.core.entry.ChartEntryModel
 import com.patrykandpatrick.vico.core.entry.entryModelOf
 import com.patrykandpatrick.vico.core.entry.entryOf
-import com.patrykandpatrick.vico.core.extension.setFieldValue
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,8 +25,8 @@ class BodyCompositionViewModel
          private val bodyCompositionRepository: BodyCompositionOfflineRepository
 ) : ViewModel()
 {
-    private val _state = MutableStateFlow(BodyCompositionUIState())
-    val state = _state.asStateFlow()
+    private val _bodyCompositionState = MutableStateFlow(BodyCompositionUIState())
+    val bodyCompositionState = _bodyCompositionState.asStateFlow()
     private val data: MutableList<Pair<String, Float>> = ArrayList()
 
 //--------------- Start of Graph assigning data -----------------
@@ -37,28 +35,28 @@ class BodyCompositionViewModel
         when(event){
             is BodyCompositionEvents.DisplayGraph ->
                 when(event.pagerState){
-                    0 -> _state.update {
+                    0 -> _bodyCompositionState.update {
                         data.clear()
                         it.copy(
                             model = chartEntryModel(weight()),
                             date = date(weight())
                         )
                     }
-                    1 -> _state.update {
+                    1 -> _bodyCompositionState.update {
                         data.clear()
                         it.copy(
                             model = chartEntryModel(height()),
                             date = date(height())
                         )
                     }
-                    2 -> _state.update {
+                    2 -> _bodyCompositionState.update {
                         data.clear()
                         it.copy(
                             model = chartEntryModel(bodyfat()),
                             date = date(bodyfat())
                         )
                     }
-                    3 -> _state.update {
+                    3 -> _bodyCompositionState.update {
                         data.clear()
                         it.copy(
                             model = chartEntryModel(muscleMass()),

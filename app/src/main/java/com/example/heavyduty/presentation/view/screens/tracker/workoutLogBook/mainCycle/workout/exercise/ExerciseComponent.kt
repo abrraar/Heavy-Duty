@@ -37,6 +37,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.HiltViewModelFactory
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
 import com.example.heavyduty.domain.model.tracker.workoutLogbook.ExerciseModel
 import com.example.heavyduty.presentation.view.theme.CardInnerContentBackGround
 import com.example.heavyduty.presentation.view.theme.Green
@@ -45,12 +52,32 @@ import com.example.heavyduty.presentation.view.theme.IntractableBackgroundColor
 import com.example.heavyduty.presentation.view.util.customButton.CustomButton
 import com.example.heavyduty.presentation.view.util.customCard.CustomCard
 import com.example.heavyduty.presentation.view.util.customTextField.CustomTextField
+import com.example.heavyduty.presentation.view.util.prompts.Prompt
 import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.WorkoutLogbookEvents
 import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.exercise.component.ExerciseComponentEvents
 import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.exercise.component.ExerciseComponentUIState
 import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.exercise.component.ExerciseComponentViewModel
 import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.exercise.screen.ExerciseScreenUIState
 import com.example.heavyduty.units.IntensityUnits
+
+
+@Composable
+inline fun <reified VM : ViewModel> hiltViewModelWithKey(key: String): VM {
+    val viewModelStoreOwner =
+        if (checkNotNull(LocalViewModelStoreOwner.current) is NavBackStackEntry) {
+            checkNotNull(LocalViewModelStoreOwner.current) { "ViewModelStoreOwner is null" }
+        } else null
+
+    return viewModel(
+        key = key,
+        factory = if (viewModelStoreOwner is NavBackStackEntry) {
+            HiltViewModelFactory(
+                LocalContext.current,
+                viewModelStoreOwner
+            )
+        } else null
+    )
+}
 
 @Composable
 fun ExerciseComponent(
@@ -61,19 +88,37 @@ fun ExerciseComponent(
     exerciseNameStyle: TextStyle = MaterialTheme.typography.headlineMedium,
 ){
     var intensityComponentClicked by remember { mutableStateOf(false) }
-    val exerciseComponentViewModel = remember { ExerciseComponentViewModel(exerciseModel) }
+    val exerciseComponentViewModel = hiltViewModelWithKey<ExerciseComponentViewModel>(key = exerciseModel.exerciseName)
     val exerciseComponentUIState by exerciseComponentViewModel.exerciseComponentUIState.collectAsState()
 
     var weightNum by remember { mutableStateOf("") }
-    var posReps by remember { exerciseComponentUIState.positiveNum }
-    var statReps by remember { exerciseComponentUIState.staticNum }
-    var negReps by remember { exerciseComponentUIState.negativeNum }
-    var forceReps by remember { exerciseComponentUIState.forceNum }
 
+    if(exerciseComponentUIState.deleteExercisePrompt){
+        Prompt(
+            titleText = "Delete Exercise",
+            message = "Do you want to delete\n" + exerciseModel.exerciseName,
+            onConfirm = {
+                workoutLogbookEvents(WorkoutLogbookEvents.DeleteExercise(
+                    cycleNumber = exerciseScreenUIState.cycleIndex,
+                    workoutNumber = exerciseScreenUIState.workoutIndex,
+                    exerciseModel = exerciseModel
+                ))
+                exerciseComponentViewModel.onExerciseComponentEvent(
+                    ExerciseComponentEvents.DeleteExerciseClicked(false))
+            },
+            onCancel = {
+                exerciseComponentViewModel.onExerciseComponentEvent(
+                    ExerciseComponentEvents.DeleteExerciseClicked(false))
+            }
+        )
+    }
 
     CustomCard(
         enableDeleteBtn = true,
-        deleteBtn = {},
+        deleteBtn = {
+            exerciseComponentViewModel.onExerciseComponentEvent(
+                ExerciseComponentEvents.DeleteExerciseClicked(true))
+        },
         header = "Exercise ${exerciseModel.exerciseNumber}",
         textAlign = Alignment.Start,
         modifier = Modifier
@@ -117,10 +162,10 @@ fun ExerciseComponent(
                 if (intensityComponentClicked){
                     IntensityExtension(
                         exerciseModel = exerciseModel,
-                        forceReps = forceReps,
-                        posReps = posReps,
-                        statReps = statReps,
-                        negativeReps = negReps,
+                        forceReps = exerciseComponentUIState.forceNum.value,
+                        posReps = exerciseComponentUIState.positiveNum.value,
+                        statReps = exerciseComponentUIState.staticNum.value,
+                        negativeReps = exerciseComponentUIState.negativeNum.value,
                         exerciseComponentEvents = exerciseComponentViewModel::onExerciseComponentEvent,
                         workoutLogbookEvents = workoutLogbookEvents,
                         modifier = Modifier.padding(bottom = 15.dp),
@@ -134,7 +179,7 @@ fun ExerciseComponent(
                         modifier = Modifier
                             .padding(top = 15.dp)
                             .width(300.dp)
-                            .height((104 + (exerciseComponentUIState.listOfIntensityComponentName.size * 50 ) + (exerciseComponentUIState.listOfIntensityComponentName.size )).dp)
+                            .height((104 + (exerciseComponentUIState.listOfIntensityComponentName.size * 50) + (exerciseComponentUIState.listOfIntensityComponentName.size)).dp)
                             .background(
                                 color = CardInnerContentBackGround,
                                 shape = RoundedCornerShape(20.dp)
@@ -159,19 +204,19 @@ fun ExerciseComponent(
                                 }
                                 BodyRow(
                                     value = when(intensityUnit ){
-                                        IntensityUnits.Positive -> posReps
-                                        IntensityUnits.Static -> statReps
-                                        IntensityUnits.Negative -> negReps
-                                        IntensityUnits.Forced -> forceReps
+                                        IntensityUnits.Positive -> exerciseComponentUIState.positiveNum.value
+                                        IntensityUnits.Static -> exerciseComponentUIState.staticNum.value
+                                        IntensityUnits.Negative -> exerciseComponentUIState.negativeNum.value
+                                        IntensityUnits.Forced -> exerciseComponentUIState.forceNum.value
                                         IntensityUnits.PreExhaust -> ""
                                     },
                                     onValueChange = {
                                             text ->
                                         when(intensityUnit ){
-                                            IntensityUnits.Positive -> posReps = text
-                                            IntensityUnits.Static -> statReps = text
-                                            IntensityUnits.Negative -> negReps = text
-                                            IntensityUnits.Forced -> forceReps = text
+                                            IntensityUnits.Positive -> exerciseComponentUIState.positiveNum.value = text
+                                            IntensityUnits.Static -> exerciseComponentUIState.staticNum.value = text
+                                            IntensityUnits.Negative -> exerciseComponentUIState.negativeNum.value = text
+                                            IntensityUnits.Forced -> exerciseComponentUIState.forceNum.value = text
                                             IntensityUnits.PreExhaust -> {}
                                         }
                                         workoutLogbookEvents(WorkoutLogbookEvents.AddIntensityComponent(
@@ -180,10 +225,10 @@ fun ExerciseComponent(
                                             cycleNumber = exerciseScreenUIState.cycleIndex,
                                             workoutNumber = exerciseScreenUIState.workoutIndex,
                                             reps = when(intensityUnit ){
-                                                IntensityUnits.Positive -> posReps
-                                                IntensityUnits.Static -> statReps
-                                                IntensityUnits.Negative -> negReps
-                                                IntensityUnits.Forced -> forceReps
+                                                IntensityUnits.Positive -> exerciseComponentUIState.positiveNum.value
+                                                IntensityUnits.Static -> exerciseComponentUIState.staticNum.value
+                                                IntensityUnits.Negative -> exerciseComponentUIState.negativeNum.value
+                                                IntensityUnits.Forced -> exerciseComponentUIState.forceNum.value
                                                 else -> value
                                             }
                                         ))

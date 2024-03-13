@@ -3,8 +3,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    // plugin for relay from figma
-    id("com.google.relay")
+
     // Kotlin Symbol Processor
     id("com.google.devtools.ksp")
     // Hilt

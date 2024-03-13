@@ -29,15 +29,15 @@ class AddCycleViewModel
     private val _exerciseState = MutableStateFlow(ViewExerciseUIState())
     val exerciseState = _exerciseState.asStateFlow()
 
-    private fun getCycleIndex(index: Int){
-        _exerciseState.getAndUpdate  {
+    private fun getCycleIndex(index: Int) {
+        _exerciseState.getAndUpdate {
             it.copy(
                 cycleIndexSelected = index
             )
         }
     }
 
-    private fun enterCycle(cycleName: String){
+    private fun enterCycle(cycleName: String) {
         if (cycleName == "Beginner's\nCycle"){
             viewModelScope.launch {
                 addCycleOfflineRepository.insertCycle(
@@ -69,7 +69,7 @@ class AddCycleViewModel
         }
     }
 
-    fun onWorkoutEvents(events: AddCycleEvents){
+    fun onWorkoutEvents(events: AddCycleEvents) {
         when(events){
             is AddCycleEvents.CycleSelected ->
                getCycleIndex(events.cycleIndex)
@@ -102,6 +102,7 @@ class AddCycleViewModel
                 }
 
             }
+
             is AddCycleEvents.ConfirmClicked -> {
                 enterCycle(events.cycleName)
             }

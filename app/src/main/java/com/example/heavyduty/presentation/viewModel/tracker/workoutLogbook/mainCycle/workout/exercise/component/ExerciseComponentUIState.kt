@@ -12,6 +12,7 @@ data class ExerciseComponentUIState(
 
     val listOfIntensityComponentName: MutableList<IntensityUnits> = mutableListOf(),
 
+    val deleteExercisePrompt: Boolean = false,
     val validInput: Boolean = true,
 
     val positiveRepColor: Color = BrightGreen,

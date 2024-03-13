@@ -56,6 +56,7 @@ class WorkoutLogbookViewModel
                _exerciseScreenUIState.update { it.copy( listOfCycle = cycleList ) }
             }
         }
+
     }
 
     fun onWorkoutLogBookEvents(events: WorkoutLogbookEvents) {
@@ -112,7 +113,7 @@ class WorkoutLogbookViewModel
                 var repsInInt = 0
                 repsInInt = if(events.reps == "" || events.reps == "0"){ 0 } else { events.reps.toInt() }
 
-                Log.i("repsInInt", repsInInt.toString())
+
                 val cycle = cycleList
                 for ((index, exercise) in cycle[events.cycleNumber].cycleModel.listOfWorkout[events.workoutNumber].listOfExercise.withIndex()){
                     if(events.exerciseModel.exerciseNumber == exercise.exerciseNumber){
@@ -233,6 +234,55 @@ class WorkoutLogbookViewModel
                         }
                     }
                 }
+            }
+
+            is WorkoutLogbookEvents.DeleteExercise -> {
+                val cycle = cycleList
+                for ( exercise in cycle[events.cycleNumber].cycleModel.listOfWorkout[events.workoutNumber].listOfExercise){
+                    if(events.exerciseModel.exerciseNumber == exercise.exerciseNumber){
+                        cycle[events.cycleNumber].cycleModel.listOfWorkout[events.workoutNumber].listOfExercise.remove(events.exerciseModel)
+                        break
+                    }
+                }
+                viewModelScope.launch {
+                    workoutLogbookOfflineRepository.updateCycle(cycle[events.cycleNumber])
+                }
+                getCycle()
+            }
+
+            is WorkoutLogbookEvents.WorkoutDelete -> {
+                val cycle = cycleList
+                for ( workout in cycle[events.cycleNumber].cycleModel.listOfWorkout){
+                    if(events.workoutModel.workoutNumber == workout.workoutNumber){
+                        cycle[events.cycleNumber].cycleModel.listOfWorkout.remove(events.workoutModel)
+                        break
+                    }
+                }
+                viewModelScope.launch {
+                    workoutLogbookOfflineRepository.updateCycle(cycle[events.cycleNumber])
+                }
+                getCycle()
+            }
+
+            is WorkoutLogbookEvents.WorkoutDeleteClicked -> {
+                when(events.isClicked){
+                    true -> {
+                        _workoutUIState.update {
+                            it.copy(
+                                deleteClicked = true,
+                                workoutModel = events.workoutModel
+                            )
+                        }
+                    }
+                    false -> {
+                        _workoutUIState.update {
+                            it.copy(
+                                deleteClicked = false
+                            )
+                        }
+                    }
+                }
+
             }
 
         }

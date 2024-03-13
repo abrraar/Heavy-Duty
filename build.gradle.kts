@@ -7,10 +7,9 @@ buildscript {
 }
 
 plugins {
-    id("com.android.application") version "8.2.2" apply false
+    id("com.android.application") version "8.3.0" apply false
     id("org.jetbrains.kotlin.android") version "1.9.22" apply false
-    // Plugin for Relay
-    id("com.google.relay") version "0.3.09"
+
     //Ksp
     id("com.google.devtools.ksp") version "1.9.22-1.0.17" apply false
     // Hilt

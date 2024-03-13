@@ -232,7 +232,7 @@ private fun Graph(
 ){
     val chartModel = state.model
     val date = state.date
-
+    
     val lineSpec = arrayListOf<LineChart.LineSpec>()
     lineSpec.add(
         LineChart.LineSpec(

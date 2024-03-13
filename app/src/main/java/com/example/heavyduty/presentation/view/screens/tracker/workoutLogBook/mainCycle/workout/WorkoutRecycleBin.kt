@@ -1,4 +1,4 @@
-package com.example.heavyduty.view.screens.tracker.workoutLogBook.mainCycle.workout
+package com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.mainCycle.workout
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.mainCycle.workout.WorkoutComponent
 import com.example.heavyduty.presentation.view.util.searchBars.SearchBar
 import com.example.heavyduty.presentation.view.theme.IntractableBackgroundColor
 import com.example.heavyduty.presentation.view.theme.ScreenBackgroundColor
@@ -30,7 +29,10 @@ fun WorkoutRecycleBin(){
         LazyColumn(modifier = Modifier.fillMaxHeight(1f)) {
             items(2){
                 Spacer(modifier = Modifier.padding(bottom = 15.dp))
-                WorkoutComponent(header = false, bodyColor = IntractableBackgroundColor)
+                WorkoutComponent(
+                    deleteClick = {},
+                    header = false,
+                    bodyColor = IntractableBackgroundColor)
             }
         }
     }

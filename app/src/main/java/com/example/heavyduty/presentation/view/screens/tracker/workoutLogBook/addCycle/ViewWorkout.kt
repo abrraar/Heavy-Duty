@@ -80,6 +80,7 @@ fun ViewWorkout(
 
                 Spacer(modifier = Modifier.padding(top = 20.dp))
                 WorkoutComponent(
+                    deleteClick = {},
                     textStyle = MaterialTheme.typography.headlineSmall,
                     numOfText = 1,
                     workoutName = it.workoutName,
