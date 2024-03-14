@@ -72,6 +72,9 @@ class BodyCompositionViewModel
 
 //-------------------------- Start of Getting BodyComposition entries to display on Graph Composable -------------------------------
 
+    init{
+        weight()
+    }
     private fun weight(): MutableList<Pair<String, Float>>{
         viewModelScope.launch {
             bodyCompositionRepository.getAllWeight().collectLatest{

@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.heavyduty.data.local.Constants.DATABASE_NAME
+import com.example.heavyduty.data.local.tracker.bodyComposition.addBodyComposition.AddBodyCompositionDAO
 import com.example.heavyduty.data.local.tracker.bodyComposition.main.BodyCompositionDAO
 import com.example.heavyduty.data.local.tracker.workoutLogbook.addCycle.AddCycleDAO
 import com.example.heavyduty.data.local.tracker.workoutLogbook.mainCycle.WorkoutLogBookDAO
@@ -35,6 +36,7 @@ import com.example.heavyduty.domain.model.tracker.workoutLogbook.Cycle
 abstract class HeavyDutyDataBase: RoomDatabase()
 {
     abstract fun bodyCompositionDAO(): BodyCompositionDAO
+    abstract fun addBodyCompositionDAO(): AddBodyCompositionDAO
     abstract fun exerciseDAO(): ExerciseDAO
     abstract fun addCycleDAO(): AddCycleDAO
     abstract fun workoutLogbookDAO(): WorkoutLogBookDAO

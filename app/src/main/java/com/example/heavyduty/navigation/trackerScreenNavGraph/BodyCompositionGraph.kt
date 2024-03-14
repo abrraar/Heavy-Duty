@@ -14,6 +14,7 @@ import com.example.heavyduty.presentation.view.screens.tracker.bodyComposition.m
 import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.addBodyComposition.AddBodyCompositionUIState
 import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.addBodyComposition.AddBodyCompositionViewModel
 import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.main.BodyCompositionUIState
+import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.main.BodyCompositionViewModel
 
 fun NavGraphBuilder.bodyCompositionGraph(navHostController: NavHostController){
     // Body Composition
@@ -24,10 +25,12 @@ fun NavGraphBuilder.bodyCompositionGraph(navHostController: NavHostController){
     {
         composable(route = NavigationScreenNames.BodyComposition.route )
         {
+            val bodyCompositionViewModel = hiltViewModel<BodyCompositionViewModel>()
+            val bodyCompositionUIState by bodyCompositionViewModel.bodyCompositionState.collectAsState()
             BodyCompositionScreen(
                 navController = navHostController,
-                state = BodyCompositionUIState(),
-                events = {})
+                state = bodyCompositionUIState,
+                events = bodyCompositionViewModel::onBodyCompositionEvents)
 
         }
         composable(route = NavigationScreenNames.AddBodyCompositionRecords.route)

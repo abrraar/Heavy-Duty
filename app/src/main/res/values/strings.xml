@@ -70,6 +70,7 @@
     <string name="Kilogram">Kilogram</string>
     <string name="lbs">lbs</string>
     <string name="Pound">Pound</string>
+    <string name="percent">%</string>
 
     <string name="cm">cm</string>
     <string name="Centimeter">Centimeter</string>
