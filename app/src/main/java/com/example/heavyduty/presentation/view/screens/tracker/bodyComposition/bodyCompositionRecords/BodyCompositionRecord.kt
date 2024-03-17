@@ -1,5 +1,6 @@
 package com.example.heavyduty.presentation.view.screens.tracker.bodyComposition.bodyCompositionRecords
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,25 +14,45 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.heavyduty.R
 import com.example.heavyduty.domain.model.tracker.bodyComposition.BodyCompositionTitle.list
+import com.example.heavyduty.domain.model.tracker.bodyComposition.BodyFat
+import com.example.heavyduty.domain.model.tracker.bodyComposition.Height
+import com.example.heavyduty.domain.model.tracker.bodyComposition.MuscleMass
+import com.example.heavyduty.domain.model.tracker.bodyComposition.Weight
 import com.example.heavyduty.presentation.view.theme.CardInnerContentBackGround
 import com.example.heavyduty.presentation.view.theme.HeavyDutyTheme
 import com.example.heavyduty.presentation.view.util.searchBars.SearchBar
+import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.bodyCompositionRecords.BodyCompositionRecordsUIState
+import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.bodyCompositionRecords.BodyCompositionRecordsViewModel
+import com.example.heavyduty.units.BodyCompositionComponents
+import java.time.format.DateTimeFormatter
 
 @Composable
-fun BodyCompositionRecord(){
+fun BodyCompositionRecord(
+   bodyCompositionRecordsUIState: BodyCompositionRecordsUIState
+){
+    val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d-MMMM-yy")
+
+    Log.i("records", bodyCompositionRecordsUIState.recordList.toString())
     Column(
         modifier = Modifier
             .fillMaxHeight(1f)
@@ -43,20 +64,73 @@ fun BodyCompositionRecord(){
         SearchBar(filterClickable = {})
 
         LazyColumn(modifier = Modifier
-            .padding(top = 10.dp)
             .fillMaxHeight(1f)
         ){
-            items(6){
-                BodyCompositionRecordCard(modifier = Modifier.padding(bottom = 20.dp))
 
+            items(bodyCompositionRecordsUIState.recordList){
+
+                Spacer(modifier = Modifier.padding(top = 10.dp, bottom = 10.dp))
+
+                if(it is Weight){
+                    BodyCompositionRecordCard(
+                        headerTxt = BodyCompositionComponents.WEIGHT.component,
+                        recordNum = it.id.toString(),
+                        value = it.mass.toString(),
+                        unit = it.unit,
+                        date = it.date,
+                        time = it.time
+                    )
+                }
+
+                if(it is Height){
+                    BodyCompositionRecordCard(
+                        headerTxt = BodyCompositionComponents.HEIGHT.component,
+                        recordNum = it.id.toString(),
+                        value = it.height.toString(),
+                        unit = it.unit,
+                        date = it.date,
+                        time = it.time
+                    )
+                }
+
+                if(it is BodyFat){
+                    BodyCompositionRecordCard(
+                        headerTxt = BodyCompositionComponents.BODYFAT.component,
+                        recordNum = it.id.toString(),
+                        value = it.bodyFat.toString(),
+                        unit = it.unit,
+                        date = it.date,
+                        time = it.time
+                    )
+                }
+
+                if(it is MuscleMass){
+                    BodyCompositionRecordCard(
+                        headerTxt = BodyCompositionComponents.MUSCLEMASS.component,
+                        recordNum = it.id.toString(),
+                        value = it.muscleMass.toString(),
+                        unit = it.unit,
+                        date = it.date,
+                        time = it.time
+                    )
+                }
+
+                Spacer(modifier = Modifier.padding(top = 10.dp, bottom = 10.dp))
             }
         }
     }
 }
 
 @Composable
-private fun BodyCompositionRecordCard(modifier: Modifier = Modifier){
-    Column(modifier = modifier
+private fun BodyCompositionRecordCard(
+    headerTxt: Int = 0,
+    recordNum: String  = "1",
+    unit: String = "",
+    value: String = "12",
+    date: String = "dd/mm/yy",
+    time: String = "hh:mm"
+){
+    Column(modifier = Modifier
         .background(
             color = CardInnerContentBackGround,
             shape = RoundedCornerShape(20.dp)
@@ -67,9 +141,9 @@ private fun BodyCompositionRecordCard(modifier: Modifier = Modifier){
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top)
     {
-        HeaderRow()
+        HeaderRow(headerTxt = headerTxt)
         Spacer(modifier = Modifier.padding(bottom = 2.dp))
-        ComponentRow()
+        ComponentRow(unit = unit)
         Spacer(modifier = Modifier.padding(bottom = 2.dp))
         LazyRow{
             items(4){
@@ -89,7 +163,15 @@ private fun BodyCompositionRecordCard(modifier: Modifier = Modifier){
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Suwi",
+                        text =
+                        when(it){
+                            0 -> recordNum
+                            1 -> value
+                            2 -> date
+                            3 -> time
+                            else -> ""
+                        },
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSecondary)
                 }
             }
@@ -98,7 +180,9 @@ private fun BodyCompositionRecordCard(modifier: Modifier = Modifier){
 }
 
 @Composable
-private fun ComponentRow(){
+private fun ComponentRow(
+    unit: String
+){
     LazyRow(
         modifier = Modifier
             .width(340.dp)
@@ -111,12 +195,16 @@ private fun ComponentRow(){
     ){
         itemsIndexed(list)
         { index, title ->
-            CustomBox(title = title)
+            CustomBox(
+                title = title,
+                unit = unit )
         }
     }
 }
 @Composable
-private fun HeaderRow(){
+private fun HeaderRow(
+    headerTxt: Int = 0,
+){
     Row( modifier = Modifier
         .width(340.dp)
         .height(40.dp)
@@ -128,7 +216,7 @@ private fun HeaderRow(){
         horizontalArrangement = Arrangement.Start)
     {
         Text(
-            text = "suwi",
+            text = stringResource(id = headerTxt),
             color = MaterialTheme.colorScheme.onPrimary,
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.padding(start = 15.dp))
@@ -139,6 +227,7 @@ private fun HeaderRow(){
 @Composable
 private fun CustomBox(
     title: Int,
+    unit: String,
 ){
     Box(
         modifier = Modifier
@@ -149,7 +238,7 @@ private fun CustomBox(
     )
     {
         Text(
-            text = stringResource(id = title),
+            text = if(title == R.string.value) { stringResource(id = title) + "\n${unit}" } else {stringResource(id = title)},
             color = MaterialTheme.colorScheme.onPrimary,
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.labelSmall,
@@ -162,7 +251,9 @@ private fun CustomBox(
 @Preview(showSystemUi = true)
 private fun BodyCompositionRecordPreview(){
     HeavyDutyTheme(dynamicColor = false) {
-        BodyCompositionRecord()
+        BodyCompositionRecord(
+           bodyCompositionRecordsUIState = BodyCompositionRecordsUIState()
+        )
     }
 }
 

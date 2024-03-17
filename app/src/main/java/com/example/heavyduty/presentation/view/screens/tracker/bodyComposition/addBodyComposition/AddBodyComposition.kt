@@ -1,5 +1,6 @@
 package com.example.heavyduty.presentation.view.screens.tracker.bodyComposition.addBodyComposition
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,11 +25,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -47,14 +55,18 @@ import com.example.heavyduty.presentation.view.theme.Shape
 import com.example.heavyduty.presentation.view.util.customTextField.CustomTextField
 import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.addBodyComposition.AddBodyCompositionEvents
 import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.addBodyComposition.AddBodyCompositionUIState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun AddBodyComposition(
     addBodyCompositionUIState: AddBodyCompositionUIState,
     addBodyCompositionEvents: ((AddBodyCompositionEvents) -> Unit)? = null
-)
-{
+) {
+    val context = LocalContext.current
+
     if (addBodyCompositionUIState.showPhysicalTraitPrompt){
         AddComponentsPrompt(
             onCancel = { addBodyCompositionEvents!!(AddBodyCompositionEvents.EnterPhysicalTraitClicked(false)) },
@@ -71,12 +83,47 @@ fun AddBodyComposition(
         )
     {
 
+        if(
+            addBodyCompositionUIState.weightValue.value != "" ||
+            addBodyCompositionUIState.heightValue.value != "" ||
+            addBodyCompositionUIState.bodyFatValue.value != "" ||
+            addBodyCompositionUIState.muscleMassValue.value != ""
+            ){
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .clickable {
+                        addBodyCompositionEvents!!(
+                            AddBodyCompositionEvents.SaveButtonClicked(
+                                weight = addBodyCompositionUIState.weightValue.value,
+                                height = addBodyCompositionUIState.heightValue.value,
+                                bodyfat = addBodyCompositionUIState.bodyFatValue.value,
+                                musclemass = addBodyCompositionUIState.muscleMassValue.value
+                            )
+                        )
+                        Toast.makeText(context,
+                            "Data saved",
+                            Toast.LENGTH_SHORT).show()
+
+                    }
+                    .height(60.dp)
+                    .fillMaxWidth(1f)
+                    .background(color = Green))
+            {
+                Text(
+                    text = "Click here to save",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
             modifier = Modifier
+                .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .fillMaxWidth(1f)
         ) {
             CustomButton(
                 modifier = Modifier
@@ -89,8 +136,14 @@ fun AddBodyComposition(
                     addBodyCompositionEvents!!(AddBodyCompositionEvents.EnterPhysicalTraitClicked(true))
                 }
             )
-
-            if(addBodyCompositionUIState.bodyCompositionList.isNotEmpty()){
+            if (addBodyCompositionUIState.bodyCompositionList.isEmpty()){
+                Text(
+                    text = "No physical trait selected",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+            else {
                 for(it in addBodyCompositionUIState.bodyCompositionList){
                     BodyCompositionCard(
                         title = when(it) {
@@ -135,51 +188,8 @@ fun AddBodyComposition(
                 }
             }
         }
-
-        if (addBodyCompositionUIState.bodyCompositionList.isEmpty()){
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .fillMaxWidth(1f)
-                    .weight(1f)
-            ) {
-                Text(
-                    text = "No physical trait selected",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            }
-        }
-        if(addBodyCompositionUIState.weightValue.value != ""){
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .height(80.dp)
-                    .clickable {
-                        addBodyCompositionEvents!!(
-                            AddBodyCompositionEvents.SaveButtonClicked(
-                                weight = addBodyCompositionUIState.weightValue.value,
-                                height = addBodyCompositionUIState.heightValue.value,
-                                bodyfat = addBodyCompositionUIState.bodyFatValue.value,
-                                musclemass = addBodyCompositionUIState.muscleMassValue.value
-                            )
-                        )
-
-                    }
-                    .fillMaxWidth(1f)
-                    .background(color = Green))
-            {
-                Text(
-                    text = "Save",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-        }
-
     }
+
 }
 
 @Composable

@@ -1,5 +1,10 @@
 package com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.main
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
+import com.example.heavyduty.R
+import com.example.heavyduty.domain.model.tracker.bodyComposition.Weight
 import com.patrykandpatrick.vico.core.axis.AxisPosition
 import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
 import com.patrykandpatrick.vico.core.entry.ChartEntryModel
@@ -11,11 +16,14 @@ data class BodyCompositionUIState(
     var isSelected: Boolean = false,
 
     // Graph
-    var model: ChartEntryModel? = null,
-    var date: AxisValueFormatter<AxisPosition.Horizontal.Bottom>? = null,
+    val model: MutableState<ChartEntryModel>? = null,
+    val date: MutableState<AxisValueFormatter<AxisPosition.Horizontal.Bottom>>? = null,
+
 
     // Graph Status
-    val pageState: Int = 4,
+    val title: Int = R.string.weight,
+    val rightButton: Boolean = true,
+    val leftButton: Boolean = false,
     var value: String = "",
     var unit: String = "",
     var dateSelected: Int = 0,
@@ -25,4 +33,4 @@ data class BodyCompositionUIState(
     var startRecordISSelected: Boolean = false,
     var endRecordIsSelected: Boolean = false,
 
-)
+    )

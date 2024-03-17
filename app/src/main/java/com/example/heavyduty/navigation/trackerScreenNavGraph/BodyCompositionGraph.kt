@@ -11,9 +11,8 @@ import com.example.heavyduty.navigation.NavigationScreenNames
 import com.example.heavyduty.presentation.view.screens.tracker.bodyComposition.addBodyComposition.AddBodyComposition
 import com.example.heavyduty.presentation.view.screens.tracker.bodyComposition.bodyCompositionRecords.BodyCompositionRecord
 import com.example.heavyduty.presentation.view.screens.tracker.bodyComposition.main.BodyCompositionScreen
-import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.addBodyComposition.AddBodyCompositionUIState
 import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.addBodyComposition.AddBodyCompositionViewModel
-import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.main.BodyCompositionUIState
+import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.bodyCompositionRecords.BodyCompositionRecordsViewModel
 import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.main.BodyCompositionViewModel
 
 fun NavGraphBuilder.bodyCompositionGraph(navHostController: NavHostController){
@@ -30,7 +29,7 @@ fun NavGraphBuilder.bodyCompositionGraph(navHostController: NavHostController){
             BodyCompositionScreen(
                 navController = navHostController,
                 state = bodyCompositionUIState,
-                events = bodyCompositionViewModel::onBodyCompositionEvents)
+                bodyCompositionEvents = bodyCompositionViewModel::bodyCompositionEvents)
 
         }
         composable(route = NavigationScreenNames.AddBodyCompositionRecords.route)
@@ -46,7 +45,11 @@ fun NavGraphBuilder.bodyCompositionGraph(navHostController: NavHostController){
 
         composable(route = NavigationScreenNames.BodyCompositionRecords.route)
         {
-            BodyCompositionRecord()
+            val bodyCompositionAddBodyCompositionViewModel = hiltViewModel<BodyCompositionRecordsViewModel>()
+            val bodyCompositionRecordsUIState by bodyCompositionAddBodyCompositionViewModel.bodyCompositionRecordsRecords.collectAsState()
+            BodyCompositionRecord(
+                bodyCompositionRecordsUIState = bodyCompositionRecordsUIState
+            )
         }
     }
 }

@@ -14,7 +14,7 @@ import javax.inject.Singleton
 object BodyCompositionRepositoryModule {
     @Singleton
     @Provides
-    fun providesBodyCompositionRepository(bodyCompositionDAO: BodyCompositionDAO): BodyCompositionRepository{
+    fun providesBodyCompositionRepository(bodyCompositionDAO: BodyCompositionDAO): BodyCompositionOfflineRepository{
         return BodyCompositionOfflineRepository(bodyCompositionDAO)
     }
 }

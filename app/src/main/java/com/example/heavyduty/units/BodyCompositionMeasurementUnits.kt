@@ -5,7 +5,7 @@ class BodyCompositionMeasurementUnits
     enum class MassMeasurements(val string: String){
         Kilograms("kilogram"),
         Pound("pound"),
-        Percentage("%")
+        InPercentage("%")
     }
 
     enum class HeightMeasurements(val string: String){

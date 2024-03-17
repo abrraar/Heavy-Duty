@@ -35,7 +35,7 @@ val Typography = Typography(
     ),
     labelSmall = TextStyle(
         fontFamily = SequelSans,
-        fontSize = 10.sp
+        fontSize = 12.sp
     ),
 
 

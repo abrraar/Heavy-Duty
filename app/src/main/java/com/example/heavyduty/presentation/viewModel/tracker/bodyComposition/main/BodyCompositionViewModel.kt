@@ -1,8 +1,14 @@
 package com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.main
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.heavyduty.data.local.Constants
+import com.example.heavyduty.data.local.Constants.BODY_COMP_LEFT_BTN
+import com.example.heavyduty.data.local.Constants.BODY_COMP_RIGHT_BTN
 import com.example.heavyduty.data.local.tracker.bodyComposition.main.BodyCompositionOfflineRepository
+import com.example.heavyduty.units.BodyCompositionComponents
 import com.patrykandpatrick.vico.core.axis.AxisPosition
 import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
 import com.patrykandpatrick.vico.core.entry.ChartEntryModel
@@ -27,43 +33,79 @@ class BodyCompositionViewModel
 {
     private val _bodyCompositionState = MutableStateFlow(BodyCompositionUIState())
     val bodyCompositionState = _bodyCompositionState.asStateFlow()
-    private val data: MutableList<Pair<String, Float>> = ArrayList()
+
+    private val itemDisplayed: ArrayList<String> = arrayListOf(Constants.WEIGHT)
 
 //--------------- Start of Graph assigning data -----------------
 
-    fun onBodyCompositionEvents(event: BodyCompositionEvents){
-        when(event){
-            is BodyCompositionEvents.DisplayGraph ->
-                when(event.pagerState){
-                    0 -> _bodyCompositionState.update {
-                        data.clear()
-                        it.copy(
-                            model = chartEntryModel(weight()),
-                            date = date(weight())
-                        )
+    fun bodyCompositionEvents(events: BodyCompositionEvents){
+        when(events){
+            is BodyCompositionEvents.DisplayGraph ->{
+                when(events.click){
+                    BODY_COMP_RIGHT_BTN -> {
+                        if(itemDisplayed.contains(Constants.WEIGHT)){
+                            itemDisplayed.remove(Constants.WEIGHT)
+                            itemDisplayed.add(Constants.HEIGHT)
+                            height()
+                            _bodyCompositionState.update {
+                                it.copy(
+                                    rightButton = true,
+                                    leftButton = true
+                                )
+                            }
+
+                        }
+                        else if(itemDisplayed.contains(Constants.HEIGHT)){
+                            itemDisplayed.remove(Constants.HEIGHT)
+                            itemDisplayed.add(Constants.BODYFAT)
+                            bodyfat()
+
+                        }
+                        else if(itemDisplayed.contains(Constants.BODYFAT)){
+                            itemDisplayed.remove(Constants.BODYFAT)
+                            itemDisplayed.add(Constants.MUSCLEMASS)
+                            muscleMass()
+                            _bodyCompositionState.update {
+                                it.copy(
+                                    rightButton = false,
+                                    leftButton = true
+                                )
+                            }
+                        }
                     }
-                    1 -> _bodyCompositionState.update {
-                        data.clear()
-                        it.copy(
-                            model = chartEntryModel(height()),
-                            date = date(height())
-                        )
-                    }
-                    2 -> _bodyCompositionState.update {
-                        data.clear()
-                        it.copy(
-                            model = chartEntryModel(bodyfat()),
-                            date = date(bodyfat())
-                        )
-                    }
-                    3 -> _bodyCompositionState.update {
-                        data.clear()
-                        it.copy(
-                            model = chartEntryModel(muscleMass()),
-                            date = date(weight())
-                        )
+                    BODY_COMP_LEFT_BTN -> {
+                        if(itemDisplayed.contains(Constants.MUSCLEMASS)){
+                            itemDisplayed.remove(Constants.MUSCLEMASS)
+                            itemDisplayed.add(Constants.BODYFAT)
+                            bodyfat()
+                            _bodyCompositionState.update {
+                                it.copy(
+                                    leftButton = true,
+                                    rightButton = true
+                                )
+                            }
+                        }
+                        else if(itemDisplayed.contains(Constants.BODYFAT)){
+                            itemDisplayed.remove(Constants.BODYFAT)
+                            itemDisplayed.add(Constants.HEIGHT)
+                            height()
+
+                        }
+                        else if(itemDisplayed.contains(Constants.HEIGHT)){
+                            itemDisplayed.remove(Constants.HEIGHT)
+                            itemDisplayed.add(Constants.WEIGHT)
+                            weight()
+                            _bodyCompositionState.update {
+                                it.copy(
+                                    rightButton = true,
+                                    leftButton = false
+                                )
+                            }
+
+                        }
                     }
                 }
+            }
         }
     }
 
@@ -72,67 +114,147 @@ class BodyCompositionViewModel
 
 //-------------------------- Start of Getting BodyComposition entries to display on Graph Composable -------------------------------
 
-    init{
+    init {
+        // Display weight on initial display
         weight()
     }
-    private fun weight(): MutableList<Pair<String, Float>>{
+
+
+    private fun weight() {
+        val array = arrayListOf<Pair<String, Float>>()
         viewModelScope.launch {
             bodyCompositionRepository.getAllWeight().collectLatest{
                 for(weight in it){
-                    data.add(weight.date to weight.mass.toFloat())
+                    array.add(weight.date to weight.mass.toFloat())
+                }
+                val model = chartEntryModel(array)
+                val date =  date(array)
+                _bodyCompositionState.update {
+                    it.copy(
+                        model = mutableStateOf(model),
+                        date = mutableStateOf(date),
+                        title = BodyCompositionComponents.WEIGHT.component
+                    )
                 }
             }
         }
-        return data
+        viewModelScope.launch {
+            bodyCompositionRepository.totalNumberOfWeight().collectLatest {
+                val count = it
+                _bodyCompositionState.update {
+                    it.copy(
+                        totalRecords = count.toInt()
+                    )
+                }
+            }
+        }
     }
 
-    private fun height(): MutableList<Pair<String, Float>>{
+    private fun height() {
 
+        val array = arrayListOf<Pair<String, Float>>()
         viewModelScope.launch {
             bodyCompositionRepository.getAllHeight().collectLatest{
                 for(weight in it){
-                    data.add(weight.date to weight.height.toFloat())
+                    array.add(weight.date to weight.height.toFloat())
+                }
+                val model = chartEntryModel(array)
+                val date =  date(array)
+                _bodyCompositionState.update {
+                    it.copy(
+                        model = mutableStateOf(model) ,
+                        date = mutableStateOf(date),
+                        title = BodyCompositionComponents.HEIGHT.component
+                    )
                 }
             }
         }
-        return data
+        viewModelScope.launch {
+            bodyCompositionRepository.totalNumberOfHeight().collectLatest {
+                val count = it
+                _bodyCompositionState.update {
+                    it.copy(
+                        totalRecords = count.toInt()
+                    )
+                }
+            }
+        }
+
     }
 
+    private fun bodyfat() {
 
-    private fun bodyfat(): MutableList<Pair<String, Float>>{
+        val array = arrayListOf<Pair<String, Float>>()
+        viewModelScope.launch {
+            bodyCompositionRepository.getAllBodyFat().collectLatest{
+                for(weight in it){
+                    array.add(weight.date to weight.bodyFat.toFloat())
+                }
+                val model = chartEntryModel(array)
+                val date =  date(array)
+                _bodyCompositionState.update {
+                    it.copy(
+                        model = mutableStateOf(model) ,
+                        date = mutableStateOf(date),
+                        title = BodyCompositionComponents.BODYFAT.component
+                    )
+                }
+            }
+        }
 
         viewModelScope.launch {
-            bodyCompositionRepository.getAllWeight().collectLatest{
-                for(weight in it){
-                    data.add(weight.date to weight.mass.toFloat())
+            bodyCompositionRepository.totalNumberOfBodyFat().collectLatest {
+                val count = it
+                _bodyCompositionState.update {
+                    it.copy(
+                        totalRecords = count.toInt()
+                    )
                 }
             }
         }
-        return data
     }
 
-    private fun muscleMass(): MutableList<Pair<String, Float>>{
+    private fun muscleMass() {
 
+        val array = arrayListOf<Pair<String, Float>>()
         viewModelScope.launch {
             bodyCompositionRepository.getAllMuscleMass().collectLatest{
                 for(weight in it){
-                    data.add(weight.date to weight.muscleMass.toFloat())
+                    array.add(weight.date to weight.muscleMass.toFloat())
+                }
+                val model = chartEntryModel(array)
+                val date =  date(array)
+                _bodyCompositionState.update {
+                    it.copy(
+                        model = mutableStateOf(model),
+                        date = mutableStateOf(date),
+                        title = BodyCompositionComponents.MUSCLEMASS.component
+                    )
                 }
             }
         }
-        return data
+        viewModelScope.launch {
+            bodyCompositionRepository.totalNumberOfMuscleMass().collectLatest {
+                val count = it
+                _bodyCompositionState.update {
+                    it.copy(
+                        totalRecords = count.toInt()
+                    )
+                }
+            }
+        }
     }
 //-------------------------- End of Getting BodyComposition entries to display on Graph Composable -------------------------------
 
 //--------------------------- Start of chart Model and get X-axis in date format ------------------------------------------
-    private fun chartEntryModel(data: MutableList<Pair<String, Float>>): ChartEntryModel
+    private fun chartEntryModel(data: ArrayList<Pair<String, Float>>): ChartEntryModel
     {
         val yData = data.associate{ (dateString, yValue) -> LocalDate.parse(dateString) to yValue }
         val xValuesToDates = yData.keys.associateBy { it.toEpochDay().toFloat() }
         return entryModelOf(xValuesToDates.keys.zip(other = yData.values,transform = ::entryOf))
     }
 
-    private fun date(data: MutableList<Pair<String, Float>>): AxisValueFormatter<AxisPosition.Horizontal.Bottom>
+    private fun date(data: ArrayList<Pair<String, Float>>): AxisValueFormatter<AxisPosition.Horizontal.Bottom>
     {
         val yData = data.associate{ (dateString, yValue) -> LocalDate.parse(dateString) to yValue }
         val xValuesToDates = yData.keys.associateBy { it.toEpochDay().toFloat() }

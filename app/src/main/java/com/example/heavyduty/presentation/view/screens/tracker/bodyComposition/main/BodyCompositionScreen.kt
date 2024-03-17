@@ -1,7 +1,7 @@
 package com.example.heavyduty.presentation.view.screens.tracker.bodyComposition.main
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.ExperimentalFoundationApi
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,10 +17,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,13 +30,19 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.heavyduty.R
+import com.example.heavyduty.data.local.Constants
+import com.example.heavyduty.data.local.Constants.BODY_COMP_LEFT_BTN
+import com.example.heavyduty.data.local.Constants.BODY_COMP_RIGHT_BTN
 import com.example.heavyduty.data.local.tracker.bodyComposition.main.BodyCompositionTexts.columnTexts
 import com.example.heavyduty.data.local.tracker.bodyComposition.main.BodyCompositionTexts.rowTexts
 import com.example.heavyduty.navigation.NavigationScreenNames
@@ -46,7 +52,7 @@ import com.example.heavyduty.presentation.view.theme.ScreenBackgroundColor
 import com.example.heavyduty.presentation.view.util.customButton.CustomButton
 import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.main.BodyCompositionEvents
 import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.main.BodyCompositionUIState
-import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.main.getAllBodyComposition
+import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.main.BodyCompositionViewModel
 import com.patrykandpatrick.vico.compose.axis.axisGuidelineComponent
 import com.patrykandpatrick.vico.compose.axis.axisLabelComponent
 import com.patrykandpatrick.vico.compose.axis.axisLineComponent
@@ -71,13 +77,13 @@ import rememberMarker
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-@SuppressLint("ModifierParameter")
+
 @Composable
 fun BodyCompositionScreen(
-    navController: NavController,
     modifier: Modifier = Modifier,
+    navController: NavController,
     state: BodyCompositionUIState,
-    events: (BodyCompositionEvents) -> Unit
+    bodyCompositionEvents: (BodyCompositionEvents) -> Unit
 ){
     Column(
         modifier = modifier
@@ -87,8 +93,11 @@ fun BodyCompositionScreen(
     ){
         Column()
         {
-            Graph(state = state)
-            GraphStatus(state = state, events = events)
+            Graph(bodyCompositionUIState = state)
+            GraphStatus(
+                bodyCompositionEvents = bodyCompositionEvents,
+                bodyCompositionUIState = state,
+                )
         }
         Column(
             modifier = Modifier.fillMaxHeight(),
@@ -228,10 +237,10 @@ private fun Body(){
 //-------------------------- End Of Body -----------------------------------
 @Composable
 private fun Graph(
-    state: BodyCompositionUIState,
+    bodyCompositionUIState: BodyCompositionUIState,
 ){
-    val chartModel = state.model
-    val date = state.date
+    val chartModel = bodyCompositionUIState.model
+    val date = bodyCompositionUIState.date
     
     val lineSpec = arrayListOf<LineChart.LineSpec>()
     lineSpec.add(
@@ -251,7 +260,7 @@ private fun Graph(
         )
     )
 
-    if(state.model == null && state.date == null){
+    if(chartModel == null && date == null){
         Column(modifier = Modifier
             .fillMaxWidth(1f)
             .height(280.dp)
@@ -282,7 +291,6 @@ private fun Graph(
                 elevationOverlayColor = MaterialTheme.colorScheme.primary,
                 columnChart = ChartStyle.ColumnChart(columns = emptyList()),
                 marker = ChartStyle.Marker()
-
             )
         ) {
             Chart(
@@ -295,7 +303,7 @@ private fun Graph(
                     lines = lineSpec
                 ),
                 chartScrollState = rememberChartScrollState() ,
-                model = chartModel!!,
+                model = chartModel!!.value,
                 startAxis = rememberStartAxis(
                     axis = axisLineComponent(
                         strokeColor = Color.White,
@@ -317,7 +325,7 @@ private fun Graph(
                         label = axisLabelComponent(
                             lineCount = 1,
                             color = Color.White),
-                        valueFormatter = it,
+                        valueFormatter = it.value,
                     )
                 })
         }
@@ -327,93 +335,109 @@ private fun Graph(
 
 //--------------- Start Of Graph Navigation ------------------------
 
-@OptIn(ExperimentalFoundationApi::class)
+
 @Composable
 private fun GraphStatus(
-    state: BodyCompositionUIState,
-    events: (BodyCompositionEvents) -> Unit
+    bodyCompositionEvents: (BodyCompositionEvents) -> Unit,
+    bodyCompositionUIState: BodyCompositionUIState,
 ){
-    val observePage = state.pageState
 
-    HorizontalPager(state = rememberPagerState { observePage },
+    val context = LocalContext.current
+    Row(
         modifier = Modifier
             .background(color = MaterialTheme.colorScheme.secondary)
             .fillMaxWidth(1f)
             .fillMaxHeight(1f),
+        horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically)
     {
-        if(it == observePage){
-            events(BodyCompositionEvents.DisplayGraph(it))
-        }
-        Row(
+        IconButton(
             modifier = Modifier
-                .background(color = MaterialTheme.colorScheme.secondary)
-                .fillMaxWidth(1f)
+                .weight(1f)
                 .height(140.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = stringResource(id = getAllBodyComposition()[it].component),
-                    color = MaterialTheme.colorScheme.onSecondary,
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                Column(
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Row(modifier = Modifier.padding(top = 2.dp, bottom = 2.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically)
-                    {
-                        Text(
-                            text =
-                            when(it){
-                                0 -> "40"
-                                1 -> "50"
-                                2 -> "30"
-                                3 -> "20"
-                                4 -> "34"
-                                else -> "No value"
-                            },
-
-                            color = MaterialTheme.colorScheme.onSecondary,
-                            style = MaterialTheme.typography.headlineLarge)
-                        Text(
-                            text = when(it){
-                                0 -> "Kg"
-                                1 -> "kg"
-                                2 -> "%"
-                                3 -> "kg/m2"
-                                else -> "No value"
-                            },
-                            color = MaterialTheme.colorScheme.onSecondary,
-                            style = MaterialTheme.typography.labelSmall)
-                    }
-                    Text(
-                        text = stringResource(id = R.string.date),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSecondary)
+            onClick = {
+                if (bodyCompositionUIState.leftButton){
+                    bodyCompositionEvents(BodyCompositionEvents.DisplayGraph( BODY_COMP_LEFT_BTN ))
+                }else {
+                    Toast.makeText(context, "no components available", Toast.LENGTH_SHORT).show()
                 }
-                Spacer(modifier = Modifier.padding(top = 5.dp))
-                Row {
-                    Text(
-                        modifier = Modifier.padding(end = 5.dp),
-                        text = "total records:",
-                        color = MaterialTheme.colorScheme.onSecondary,
-                        style = MaterialTheme.typography.titleSmall)
+            }) {
+            Icon(
+                tint = if( bodyCompositionUIState.leftButton){
+                    Color.White} else {
+                    Color.White.copy(0.3f)},
+                painter = painterResource(id = R.drawable.double_arrow_left_icn),
+                contentDescription = "")
+        }
+        Column(
+            modifier = Modifier
+                .height(140.dp)
+                .weight(2f),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+
+            Text(
+                text = stringResource(id = bodyCompositionUIState.title),
+                color = MaterialTheme.colorScheme.onSecondary,
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Column(
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(modifier = Modifier.padding(top = 2.dp, bottom = 2.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically)
+                {
                     Text(
                         text = "10",
                         color = MaterialTheme.colorScheme.onSecondary,
-                        style = MaterialTheme.typography.titleSmall)
+                        style = MaterialTheme.typography.headlineLarge)
+                    Text(
+                        text = "kg",
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        style = MaterialTheme.typography.labelSmall)
+                }
+                Text(
+                    text = stringResource(id = R.string.date),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSecondary)
+            }
+            Spacer(modifier = Modifier.padding(top = 5.dp))
+            Row {
+                Text(
+                    modifier = Modifier.padding(end = 5.dp),
+                    text = "total records:",
+                    color = MaterialTheme.colorScheme.onSecondary,
+                    style = MaterialTheme.typography.titleSmall)
+                Text(
+                    text = bodyCompositionUIState.totalRecords.toString(),
+                    color = MaterialTheme.colorScheme.onSecondary,
+                    style = MaterialTheme.typography.titleSmall)
+            }
+
+        }
+        IconButton(
+            modifier = Modifier
+                .weight(1f)
+                .height(140.dp),
+            onClick = {
+                if (bodyCompositionUIState.rightButton){
+                    bodyCompositionEvents(BodyCompositionEvents.DisplayGraph(BODY_COMP_RIGHT_BTN))
+                }else {
+                    Toast.makeText(context, "no components available", Toast.LENGTH_SHORT).show()
                 }
 
-            }
+            }) {
+            Icon(
+                tint = if( bodyCompositionUIState.rightButton){
+                    Color.White} else {
+                    Color.White.copy(0.3f)},
+                painter = painterResource(id = R.drawable.double_arrow_right_icn),
+                contentDescription = "")
         }
+
     }
 }
 
@@ -497,7 +521,7 @@ private fun BodyCompositionScreenPreview(){
         val state = BodyCompositionUIState()
         BodyCompositionScreen(
             navController = rememberNavController(),
-            events = {},
+            bodyCompositionEvents = {},
             state = state)
     }
 }

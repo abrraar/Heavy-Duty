@@ -147,7 +147,7 @@ class AddBodyCompositionViewModel
                }
            }
            is AddBodyCompositionEvents.SaveButtonClicked -> {
-               if(_state.value.isWeightClicked || _state.value.weightValue.value != "") {
+               if(_state.value.isWeightClicked && _state.value.weightValue.value != "") {
                    val weight = Weight(mass= events.weight.toDouble(), unit = BodyCompositionMeasurementUnits.MassMeasurements.Kilograms.string)
                    viewModelScope.launch {
                        addBodyCompositionRepository.insertWeight(weight = weight)
@@ -159,7 +159,7 @@ class AddBodyCompositionViewModel
                    }
                }
 
-               if(_state.value.isHeightClicked || _state.value.heightValue.value != "") {
+               if(_state.value.isHeightClicked && _state.value.heightValue.value != "") {
                    val height = Height(height= events.height.toDouble(), unit = BodyCompositionMeasurementUnits.HeightMeasurements.Centimeter.string)
                    viewModelScope.launch {
                        addBodyCompositionRepository.insertHeight(height = height)
@@ -171,8 +171,8 @@ class AddBodyCompositionViewModel
                    }
                }
 
-               if(_state.value.isBodyFatClicked || _state.value.bodyFatValue.value != "") {
-                   val bodyfat = BodyFat(bodyFat = events.bodyfat.toDouble(), unit = BodyCompositionMeasurementUnits.MassMeasurements.Kilograms.string)
+               if(_state.value.isBodyFatClicked && _state.value.bodyFatValue.value != "") {
+                   val bodyfat = BodyFat(bodyFat = events.bodyfat.toDouble(), unit = BodyCompositionMeasurementUnits.MassMeasurements.InPercentage.string)
                    viewModelScope.launch {
                        addBodyCompositionRepository.insertBodyFat(bodyFat = bodyfat)
                    }
@@ -184,8 +184,8 @@ class AddBodyCompositionViewModel
                }
 
 
-               if(_state.value.isMuscleMassClicked || _state.value.muscleMassValue.value != "") {
-                   val muscleMass = MuscleMass(muscleMass= events.musclemass.toDouble(), unit = BodyCompositionMeasurementUnits.MassMeasurements.Kilograms.string)
+               if(_state.value.isMuscleMassClicked && _state.value.muscleMassValue.value != "") {
+                   val muscleMass = MuscleMass(muscleMass= events.musclemass.toDouble(), unit = BodyCompositionMeasurementUnits.MassMeasurements.InPercentage.string)
                    viewModelScope.launch {
                        addBodyCompositionRepository.insertMuscleMass(muscleMass = muscleMass)
                    }

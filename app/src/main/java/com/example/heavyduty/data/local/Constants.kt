@@ -12,6 +12,8 @@ object Constants {
     const val BODYFAT = "bodyfat"
     const val MUSCLEMASS = "musclemass"
 
+    const val BODY_COMP_LEFT_BTN = "left_btn"
+    const val BODY_COMP_RIGHT_BTN = "right_btn"
 
 
 }
