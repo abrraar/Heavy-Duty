@@ -1,0 +1,180 @@
+<resources>
+    <string name="app_name">Heavy Duty</string>
+
+    <!-- Start of Date and Time texts -->
+    <string name="time">Time</string>
+    <string name="date">Date</string>
+
+    <string name="day">Day</string>
+    <string name="days">Days</string>
+
+    <string name="week">Week</string>
+    <string name="weeks">Weeks</string>
+
+    <string name="month">Month</string>
+    <string name="months">Months</string>
+
+    <string name="year">Year</string>
+    <string name="years">Years</string>
+    <!-- End of Date and Time texts -->
+
+    <!-- Start of Bottom Navigation Texts -->
+    <string name="bn_tracker">Tracker</string>
+    <string name="bn_exercise">Exercise</string>
+    <string name="bn_profile">Profile</string>
+    <!-- End of Bottom Navigation Texts -->
+
+    <!-- Start of Tracker -->
+    <!-- Start of WorkoutLogbook Screen texts -->
+    <string name="workout_logbook">WORKOUT LOGBOOK</string>
+
+    <!-- Start of Intensity WorkoutComponent texts -->
+    <string name="intensity_component">Intensity Component</string>
+    <string name="previous_value">Previous Value</string>
+    <string name="increase_rate">Increase Rate %</string>
+
+    <string name="positive">Positive Reps</string>
+    <string name="negative">Negative Reps</string>
+    <string name="static_hold">Static Hold</string>
+    <string name="pre_exhaust">Pre Exhaust</string>
+    <!-- End of Intensity WorkoutComponent texts -->
+    <!-- End of WorkoutLogbook Screen texts -->
+
+    <!-- Start of Body Composition texts -->
+    <!-- Start of Title -->
+    <string name="body_composition">BODY COMPOSITION</string>
+    <string name="body_composition_graph">BODY COMPOSITION GRAPH</string>
+    <string name="body_composition_data_entry">BODY COMPOSITION DATA ENTRY</string>
+    <string name="body_composition_records">BODY COMPOSITION RECORDS</string>
+    <!-- End of Title -->
+
+    <!-- Start of Body Texts -->
+    <string name="measure_difference">Measure difference</string>
+    <string name="difference">Difference</string>
+    <string name="start_record">Start Record</string>
+    <string name="end_record">End Record</string>
+    <string name="enter_record_hint">Tap here to select record</string>
+    <string name="duration">Duration</string>
+    <!-- End of Body Texts -->
+
+    <!-- Start of Main Components -->
+    <string name="weight">Weight</string>
+    <string name="height">Height</string>
+    <string name="body_fat">Body Fat</string>
+    <string name="muscle_mass">Muscle Mass</string>
+    <string name="bmi">BMI</string>
+    <!-- End of Main Components -->
+
+    <!-- Start of Measurement Units texts -->
+    <string name="kg">kg</string>
+    <string name="Kilogram">Kilogram</string>
+    <string name="lbs">lbs</string>
+    <string name="Pound">Pound</string>
+    <string name="percent">%</string>
+
+    <string name="cm">cm</string>
+    <string name="Centimeter">Centimeter</string>
+    <string name="m">m</string>
+    <string name="Meter">Meter</string>
+    <!-- End of Measurement Units texts -->
+
+    <!-- Start of Record Screen -->
+    <string name="value">Value</string>
+    <string name="record_number">Record Number</string>
+    <string name="empty_record_screen">No records available</string>
+    <!-- End of Record Screen -->
+
+    <!-- Start of Body Composition Data entry Screen -->
+    <string name="enter_weight">Enter your current body weight</string>
+    <string name="enter_body_fat">Enter your current body fat</string>
+    <string name="enter_muscle_mass">Enter your current muscle mass</string>
+    <string name="enter_height">Enter your current height</string>
+    <!-- End of Body Composition Data entry Screen -->
+
+    <!-- Start of Body Composition Buttons -->
+    <string name="enter_data_btn">Enter Data</string>
+    <string name="records_btn">Records</string>
+    <string name="enter_physical_trait">Enter Physical Trait</string>
+    <!-- End of Body Composition Buttons -->
+
+    <!-- End of Body Composition texts -->
+    <!-- End of Tracker -->
+
+    <!-- Add Exercise Screen -->
+    <string name="about_exercise">About Exercise</string>
+    <string name="exercise_name">Exercise Name</string>
+    <string name="ent_exercise_name">Enter exercise name</string>
+    <string name="more_about_exercise">More About Exercise</string>
+    <string name="muscle_involvement">Muscle Involvement</string>
+    <string name="exercise_movement">Exercise Movement</string>
+    <string name="exercise_instruction">Exercise Instruction (Optional)</string>
+    <string name="ent_exercise_instruction">Enter exercise instruction (Optional)</string>
+    <string name="exercise_description">Exercise Description (Optional)</string>
+    <string name="ent_exercise_description">Enter exercise description (Optional)</string>
+
+    <!-- Start of Filter texts -->
+    <string name="select_component">Select Component</string>
+    <string name="group_by">Group By</string>
+    <string name="order_by">Order By</string>
+    <string name="ascending">Ascending</string>
+    <string name="descending">Descending</string>
+    <string name="total_records">Total Records :</string>
+    <!-- End of Filter texts  -->
+
+    <!-- Cycles Names -->
+    <string name="the_ideal_principled_cycle">The Ideal Principled\nCycle</string>
+    <string name="beginner_s_cycle">Beginner\'s\nCycle</string>
+    <string name="advanced_consolidated_cycle">Advanced Consolidated\nCycle</string>
+
+    <!-- Workout Names -->
+    <string name="chest_and_back">Chest and Back</string>
+
+
+    <!-- Exercise Type -->
+    <string name="compound_exercise">Compound Exercise</string>
+    <string name="isolation_exercise">Isolation Exercise</string>
+
+    <!-- Exercise Names -->
+    <string name="dumbbell_flyes">Dumbbell Flyes</string>
+    <string name="squats">Squats</string>
+    <string name="dead_lifts">Dead Lifts</string>
+    <string name="leg_press">Leg Press</string>
+    <string name="palms_up_pull_down">Palms Up\nPull Down</string>
+    <string name="barbell_rows">Barbell Rows</string>
+    <string name="press_behind_the_neck">Press Behind\nThe Neck</string>
+    <string name="standing_barbell_curls">Standing\n Barbell Curls</string>
+    <string name="standing_calves_raises">Standing\nCalves Raises</string>
+    <string name="sit_ups">Sit Ups</string>
+    <string name="cable_cross_overs">Cable\nCross Overs</string>
+    <string name="pec_decks">Pec Decks</string>
+    <string name="incline_press">Incline Press</string>
+    <string name="flat_bench_press">Flat\nBench Press</string>
+    <string name="dumbbell_pull_overs">Dumbbell\nPull Overs</string>
+    <string name="straight_arms_pull_down">Straight Arms\nPull Down</string>
+    <string name="straight_arms_lat_machine_pull_down">Straight Arms\nLat Machine\nPull Down</string>
+    <string name="triceps_press_down">Triceps Press Down</string>
+    <string name="bent_over_dumbbell_laterals">Bent Over\nDumbbell laterals</string>
+    <string name="dumbbell_laterals">Dumbbell Laterals</string>
+    <string name="one_arm_dumbbell_rows">One Arm\nDumbbell Rows</string>
+    <string name="shrugs">Shrugs</string>
+    <string name="leg_curls">Leg Curls</string>
+    <string name="toe_press">Toe Press</string>
+    <string name="donkey_calf_raises">Donkey\nCalf Raises</string>
+    <string name="hanging_leg_raises">Hanging\nLeg Raises</string>
+    <string name="machine_lateral_raises">Machine\nLateral Raises</string>
+    <string name="bent_over_lateral_raises">Bent Over\nLateral Raises</string>
+    <string name="upright_rows">Upright Rows</string>
+    <string name="machine_shoulder_press">Machine\nShoulder Press</string>
+    <string name="preacher_curls">Preacher Curls</string>
+    <string name="concentration_biceps_curls">Concentration\nBiceps Curls</string>
+    <string name="machine_biceps_curls">Machine\nBiceps Curls</string>
+    <string name="lying_triceps_extention">Lying\nTriceps Extention</string>
+    <string name="machine_triceps_extention">Machine\nTriceps Extention</string>
+    <string name="close_grip_bench_press">Close Grip\nBench Press</string>
+    <string name="rowing_machine">Rowing Machine</string>
+    <string name="leg_extention">Leg Extention</string>
+    <string name="french_press">French Press</string>
+    <string name="dips">Dips</string>
+
+
+</resources>
