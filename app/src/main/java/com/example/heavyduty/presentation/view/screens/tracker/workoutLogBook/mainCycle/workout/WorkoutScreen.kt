@@ -26,23 +26,23 @@ import com.example.heavyduty.presentation.view.util.searchBars.SearchBar
 import com.example.heavyduty.presentation.view.theme.ScreenBackgroundColor
 import com.example.heavyduty.presentation.view.util.prompts.Prompt
 import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.WorkoutEvents
-import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.WorkoutUIState
-import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.exercise.component.ExerciseComponentEvents
+import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.WorkoutScreenUIState
+import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.toWorkoutComponentUIState
 
 @Composable
 fun WorkoutScreen(
     events: (WorkoutEvents) -> Unit,
-    workoutUIState: WorkoutUIState,
+    workoutScreenUIState: WorkoutScreenUIState,
     navHostController: NavHostController
 ){
-    if(workoutUIState.deleteClicked){
+    if(workoutScreenUIState.deleteClicked){
         Prompt(
             titleText = "Delete Exercise",
-            message = "Do you want to delete\n" + workoutUIState.workoutModel!!.workoutName ,
+            message = "Do you want to delete\n" + workoutScreenUIState.workoutModel!!.workoutName ,
             onConfirm = {
                 events(WorkoutEvents.WorkoutDelete(
-                    cycleNumber = workoutUIState.cycleIndex,
-                    workoutModel = workoutUIState.workoutModel,
+                    cycleNumber = workoutScreenUIState.cycleIndex,
+                    workoutModel = workoutScreenUIState.workoutModel,
                 ))
                 events(WorkoutEvents.WorkoutDeleteClicked(
                     isClicked = false))
@@ -65,7 +65,7 @@ fun WorkoutScreen(
         SearchBar(
             addClickable = {}
         )
-        if(workoutUIState.listOfCycle[workoutUIState.cycleIndex].second.listOfWorkout.isEmpty()){
+        if(workoutScreenUIState.listOfCycle[workoutScreenUIState.cycleIndex].cycleModel.listOfWorkout.isEmpty()){
             Column(
                 modifier = Modifier.fillMaxHeight().fillMaxWidth(),
                 verticalArrangement = Arrangement.Center,
@@ -83,21 +83,20 @@ fun WorkoutScreen(
         else
         {
             LazyColumn(modifier = Modifier.fillMaxHeight(1f)) {
-                itemsIndexed(items = workoutUIState.listOfCycle[workoutUIState.cycleIndex].second.listOfWorkout,)
+                itemsIndexed(items = workoutScreenUIState.listOfCycle[workoutScreenUIState.cycleIndex].cycleModel.listOfWorkout)
                 {
                 index, it ->
                     Spacer(modifier = Modifier.padding(bottom = 15.dp))
+                    val workoutComponentUIState = it.toWorkoutComponentUIState()
                     WorkoutComponent(
                         deleteEnable = true,
+                        workoutComponentUIState = workoutComponentUIState,
                         deleteClick = {
                             events(WorkoutEvents.WorkoutDeleteClicked(
                                 workoutModel = it,
                                 isClicked = true))
                         },
                         workoutNumber = it.workoutNumber,
-                        workoutName = it.workoutName,
-                        workoutDate = it.datePerformed,
-                        progress = it.overallProgress.toString(),
                         modifier = Modifier.clickable
                         {
                             events(WorkoutEvents.WorkoutSelected(index))
@@ -117,6 +116,6 @@ fun WorkoutScreen(
 private fun WorkoutPreview(){
     WorkoutScreen(
         events = {},
-        workoutUIState = WorkoutUIState(),
+        workoutScreenUIState = WorkoutScreenUIState(),
         navHostController = rememberNavController())
 }

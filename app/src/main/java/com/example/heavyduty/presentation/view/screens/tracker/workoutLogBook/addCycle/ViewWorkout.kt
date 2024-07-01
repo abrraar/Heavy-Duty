@@ -81,10 +81,9 @@ fun ViewWorkout(
                 Spacer(modifier = Modifier.padding(top = 20.dp))
                 WorkoutComponent(
                     deleteClick = {},
-                    textStyle = MaterialTheme.typography.headlineSmall,
                     numOfText = 1,
-                    workoutName = it.workoutName,
                     header = true,
+                    deleteEnable = false,
                     workoutNumber = it.workoutNumber,
                     bodyColor = Black) {
                     Row(
@@ -137,12 +136,10 @@ fun ViewWorkout(
 @Preview
 @Composable
 private fun ViewWorkoutPreview(){
-    HeavyDutyTheme(dynamicColor = false) {
-        ViewWorkout(
-            events = {},
-            viewWorkoutUIState = ViewWorkoutUIState(),
-            routeCycle = 1,
-            onNavigate = {},
-            navHostController = rememberNavController(),)
-    }
+    ViewWorkout(
+        events = {},
+        viewWorkoutUIState = ViewWorkoutUIState(),
+        routeCycle = 1,
+        onNavigate = {},
+        navHostController = rememberNavController(),)
 }

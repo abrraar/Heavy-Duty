@@ -12,7 +12,7 @@ val listOfDefaultCycle: List<CycleModel> by lazy {
              listOfWorkout = beginnerWorkout,
              startDate = DateFormat.getDateInstance(DateFormat.MEDIUM).format(Calendar.getInstance().time),
              endDate = "",
-             overallProgress = 0.0
+             overallProgress = 0
          ),
 //---------------- The Ideal Principle Cycle -------------------
          CycleModel(
@@ -20,7 +20,7 @@ val listOfDefaultCycle: List<CycleModel> by lazy {
              listOfWorkout = IdealPrincipleWorkouts,
              startDate = DateFormat.getDateInstance(DateFormat.MEDIUM).format(Calendar.getInstance().time),
              endDate = "",
-             overallProgress = 1.0
+             overallProgress = 0
          ),
 
 //---------------- Advance Consolidation Cycle -------------------
@@ -29,7 +29,7 @@ val listOfDefaultCycle: List<CycleModel> by lazy {
              listOfWorkout = advancedWorkout,
              startDate = DateFormat.getDateInstance(DateFormat.MEDIUM).format(Calendar.getInstance().time),
              endDate = "",
-             overallProgress = -1.0
+             overallProgress = 0
          )
 
      )

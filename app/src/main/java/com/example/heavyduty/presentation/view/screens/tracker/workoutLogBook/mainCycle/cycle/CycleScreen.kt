@@ -1,6 +1,5 @@
 package com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.mainCycle.cycle
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,6 +33,8 @@ import com.example.heavyduty.presentation.view.theme.dimens
 import com.example.heavyduty.presentation.view.util.filter.Filter
 import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.CycleEvents
 import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.cycle.CycleScreenUIState
+import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.cycle.toCycleComponentUIState
+import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.cycle.toCycleModel
 
 
 @Composable
@@ -108,7 +109,8 @@ fun CycleScreen(
             {
                 LazyColumn(
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    reverseLayout = cycleScreenUIState.reverseLayout
                 )
                 {
                     itemsIndexed(
@@ -116,21 +118,23 @@ fun CycleScreen(
                         key = { index, _ -> index.toString() }
                     )
                     {
-                    index, cycleComponentUIState ->
+                    index, cycle ->
+                        val cycleComponentUIState = cycle.cycleModel.toCycleComponentUIState()
+                        if(index == 0){cycleComponentUIState.baseCycle = true}
                         val cycleNum = index + 1
                         CycleComponent(
                             modifier = Modifier
                                 .padding(top = 15.dp, bottom = 15.dp)
                                 .clickable {
-                                    events(CycleEvents.CycleSelected(index))
+                                    events(CycleEvents.CycleSelected(index, cycleComponentUIState.baseCycle))
                                     navHostController.navigate(
                                         NavigationScreenNames.WorkoutLogbookWorkout.route
                                     )
                                 },
                             cycleNum = cycleNum,
                             events = events,
-                            cycle = cycleComponentUIState.first,
-                            cycleComponentUIState = cycleComponentUIState.second
+                            cycle = cycle,
+                            cycleComponentUIState = cycleComponentUIState
                         )
                     }
                 }

@@ -9,7 +9,8 @@ import com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainC
 
 
 data class ExerciseScreenUIState (
-    val listOfCycle: SnapshotStateList<Pair<Cycle, CycleComponentUIState>> = mutableStateListOf(),
+    val baseCycle: Boolean = false,
+    val listOfCycle: SnapshotStateList<Cycle> = mutableStateListOf(),
     var cycleIndex: Int = 0,
     var workoutIndex: Int = 0
 )

@@ -1,12 +1,13 @@
 package com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle
 
 import com.example.heavyduty.domain.model.tracker.workoutLogbook.Cycle
+import com.example.heavyduty.domain.model.tracker.workoutLogbook.CycleModel
 import com.example.heavyduty.domain.model.tracker.workoutLogbook.ExerciseModel
 import com.example.heavyduty.domain.model.tracker.workoutLogbook.WorkoutModel
 import com.example.heavyduty.units.IntensityUnits
 
 interface CycleEvents {
-    data class CycleSelected(val cycleIndex: Int): CycleEvents
+    data class CycleSelected(val cycleIndex: Int, val baseCycle: Boolean): CycleEvents
     data class DeleteCycleClicked(
         val cycle: Cycle
     ): CycleEvents

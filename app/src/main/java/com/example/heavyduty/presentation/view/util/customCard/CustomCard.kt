@@ -44,8 +44,7 @@ fun CustomCard(
     ){
     Card(
         modifier = modifier
-            .width(MaterialTheme.dimens.cardWidth)
-            .height(IntrinsicSize.Max),
+            .width(MaterialTheme.dimens.cardWidth),
         shape = Shape.small,
         colors = backGroundColor,
         elevation = CardDefaults.cardElevation(25.dp)
@@ -87,7 +86,6 @@ fun CustomCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth(1f)
-                .fillMaxHeight(1f)
                 .padding(10.dp),
             horizontalAlignment = alignment,
             verticalArrangement = arrangement

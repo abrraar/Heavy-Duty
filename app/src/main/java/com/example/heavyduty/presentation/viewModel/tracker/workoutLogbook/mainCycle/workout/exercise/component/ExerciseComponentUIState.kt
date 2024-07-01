@@ -1,8 +1,6 @@
 package com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.workout.exercise.component
 
 import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import com.example.heavyduty.domain.model.tracker.workoutLogbook.ExerciseModel
 import com.example.heavyduty.presentation.view.theme.BrightGreen
@@ -18,28 +16,28 @@ data class ExerciseComponentUIState(
     val previousWeight: String = "",
 
     val positiveRepColor: Color = BrightGreen,
-    val positiveText: MutableState<String> = mutableStateOf("Added"),
-    val positiveClicked: MutableState<Boolean> = mutableStateOf(false),
+    val positiveText: String = "Added",
+    val positiveClicked: Boolean = false,
     val positivePreviousReps: String = "",
 
-    val staticHoldColor: MutableState<Color> = mutableStateOf(Green),
-    val staticHoldText: MutableState<String> = mutableStateOf("Add"),
-    val staticHoldClickable: MutableState<Boolean> = mutableStateOf(true),
-    val staticClicked: MutableState<Boolean> = mutableStateOf(false),
+    val staticHoldColor: Color = Green,
+    val staticHoldText: String = "Add",
+    val staticHoldClickable: Boolean = true,
+    val staticClicked: Boolean = false,
     val staticPreviousReps: String = "",
 
-    val negativeColor: MutableState<Color> = mutableStateOf(Green),
-    val negativeText: MutableState<String> = mutableStateOf("Add"),
-    val negativeClicked: MutableState<Boolean> = mutableStateOf(false),
+    val negativeColor: Color = Green,
+    val negativeText: String = "Add",
+    val negativeClicked: Boolean = false,
     val negativePreviousReps: String = "",
 
-    val forcedColor: MutableState<Color> = mutableStateOf(Green),
-    val forcedText: MutableState<String> = mutableStateOf("Add"),
-    val forcedClickable: MutableState<Boolean> = mutableStateOf(true),
-    val forcedClicked: MutableState<Boolean> = mutableStateOf(false),
+    val forcedColor: Color = Green,
+    val forcedText: String = "Add",
+    val forcedClickable: Boolean = true,
+    val forcedClicked: Boolean = false,
     val forcedPreviousReps: String = "",
 
-    val preExhaustColor: MutableState<Color> = mutableStateOf(Green),
+    val preExhaustColor: Color = Green,
     val preExhaustText: String = "Add",
     val preExhaustClickable: Boolean = true,
     val preExhaustClicked: Boolean = false,
@@ -50,6 +48,8 @@ data class ExerciseComponentUIState(
     val staticDifference: String = "",
     val negativeDifference: String = "",
     val forcedDifference: String = "",
+
+    val totalDifference: String = ""
 
 )
 
@@ -71,33 +71,21 @@ fun ExerciseModel.toExerciseComponentUIState(): ExerciseComponentUIState {
     val listOfIntensityComponentName = arrayListOf(IntensityUnits.Positive)
     val exerciseComponentUIState = MutableStateFlow(ExerciseComponentUIState())
 
-    fun calculateDifference(newRecord: Double, oldRecord: Double): String {
-        val difference = if(newRecord == 0.0 || oldRecord == 0.0){""}else{ "${Math.round((newRecord - oldRecord)/((oldRecord + newRecord)/2)*100)}%" }
-        Log.i("newRecord", newRecord.toString())
-        Log.i("oldRecord", oldRecord.toString())
-        Log.i("difference", difference)
-        return difference
-    }
+//------------------------------- Previous Weight, Weight Difference and total Difference ------------------------------------
 
-//------------------------------- Previous Weight ------------------------------------
     exerciseComponentUIState.update {
-        val difference: String = calculateDifference(
-            newRecord = weight,
-            oldRecord = previousWeight)
         it.copy(
             previousWeight = previousWeight.toString(),
-            weightDifference = difference
+            weightDifference = "${weightDifference}%",
+            totalDifference = "${totalDifference}%"
         )
     }
 //------------------------------- Positive --------------------------------------
     exerciseComponentUIState.update {
-        val difference: String = calculateDifference(
-            newRecord = value[IntensityUnits.Positive]!!.toDouble(),
-            oldRecord = previousReps[IntensityUnits.Positive]!!.toDouble())
 
         it.copy(
             positivePreviousReps = previousReps[IntensityUnits.Positive].toString(),
-            positiveDifference = difference
+            positiveDifference = "${ intensityDifference[IntensityUnits.Positive] }%"
         )
     }
     if (intensitySelected.contains(IntensityUnits.Positive)) {
@@ -107,8 +95,8 @@ fun ExerciseModel.toExerciseComponentUIState(): ExerciseComponentUIState {
         exerciseComponentUIState.update {
             it.copy(
                 positiveRepColor = (BrightGreen) ,
-                positiveText = mutableStateOf("Added"),
-                positiveClicked = mutableStateOf(false),
+                positiveText = "Added",
+                positiveClicked = false,
                 listOfIntensityComponentName = listOfIntensityComponentName
             )
         }
@@ -117,9 +105,9 @@ fun ExerciseModel.toExerciseComponentUIState(): ExerciseComponentUIState {
         if (intensitySelected.contains(IntensityUnits.Static)) {
             exerciseComponentUIState.update {
                 it.copy(
-                    forcedText = mutableStateOf("Static Selected"),
-                    forcedColor = mutableStateOf(Color.Red),
-                    forcedClickable = mutableStateOf(false),
+                    forcedText = "Static Selected",
+                    forcedColor = Color.Red,
+                    forcedClickable = false,
                 )
             }
         }
@@ -129,19 +117,19 @@ fun ExerciseModel.toExerciseComponentUIState(): ExerciseComponentUIState {
                 addIntensityToList(IntensityUnits.Forced, listOfIntensityComponentName)
                 exerciseComponentUIState.update {
                     it.copy(
-                        forcedText = mutableStateOf("Added"),
-                        forcedColor = mutableStateOf(BrightGreen),
-                        forcedClickable = mutableStateOf(true),
-                        forcedClicked = mutableStateOf(true)
+                        forcedText = "Added",
+                        forcedColor = BrightGreen,
+                        forcedClickable = true,
+                        forcedClicked = true
                     )
                 }
             } else {
                 removeIntensityFromList(IntensityUnits.Forced, listOfIntensityComponentName)
                 exerciseComponentUIState.update {
                     it.copy(
-                        forcedText = mutableStateOf("Add"),
-                        forcedColor = mutableStateOf(Green),
-                        forcedClickable = mutableStateOf(true),
+                        forcedText = "Add",
+                        forcedColor = Green,
+                        forcedClickable = true,
                     )
                 }
             }
@@ -156,12 +144,12 @@ fun ExerciseModel.toExerciseComponentUIState(): ExerciseComponentUIState {
         exerciseComponentUIState.update {
             it.copy(
                 positiveRepColor = (Green) ,
-                positiveText = mutableStateOf("Add"),
-                positiveClicked = mutableStateOf(true),
+                positiveText = "Add",
+                positiveClicked = true,
 
-                forcedText = mutableStateOf("Need Positive Reps"),
-                forcedColor = mutableStateOf(Color.Red),
-                forcedClickable = mutableStateOf(true),
+                forcedText = "Need Positive Reps",
+                forcedColor = Color.Red,
+                forcedClickable = true,
 
                 listOfIntensityComponentName = listOfIntensityComponentName
             )
@@ -171,13 +159,9 @@ fun ExerciseModel.toExerciseComponentUIState(): ExerciseComponentUIState {
 
 //-------------------------------Contain static-------------------------------------------
     exerciseComponentUIState.update {
-        val difference: String = calculateDifference(
-            newRecord = value[IntensityUnits.Static]!!.toDouble(),
-            oldRecord = previousReps[IntensityUnits.Static]!!.toDouble())
-
         it.copy(
             staticPreviousReps = previousReps[IntensityUnits.Static].toString(),
-            staticDifference = difference
+            staticDifference = "${ intensityDifference[IntensityUnits.Static] }%"
         )
     }
     if (intensitySelected.contains(IntensityUnits.Static)) {
@@ -185,13 +169,13 @@ fun ExerciseModel.toExerciseComponentUIState(): ExerciseComponentUIState {
 
         exerciseComponentUIState.update {
             it.copy(
-                staticHoldColor = mutableStateOf(BrightGreen),
-                staticHoldText = mutableStateOf("Added"),
-                staticClicked = mutableStateOf(true),
+                staticHoldColor = BrightGreen,
+                staticHoldText = "Added",
+                staticClicked = true,
 
-                forcedClickable = mutableStateOf(true),
-                forcedColor = mutableStateOf(Color.Red),
-                forcedText = mutableStateOf("Static Selected"),
+                forcedClickable = true,
+                forcedColor = Color.Red,
+                forcedText = "Static Selected",
 
                 listOfIntensityComponentName = listOfIntensityComponentName
             )
@@ -202,9 +186,9 @@ fun ExerciseModel.toExerciseComponentUIState(): ExerciseComponentUIState {
         removeIntensityFromList(IntensityUnits.Static, listOfIntensityComponentName)
         exerciseComponentUIState.update {
             it.copy(
-                staticHoldColor = mutableStateOf(Green),
-                staticHoldText = mutableStateOf("Add"),
-                staticClicked = mutableStateOf(false),
+                staticHoldColor = Green,
+                staticHoldText = "Add",
+                staticClicked = false,
 
                 listOfIntensityComponentName = listOfIntensityComponentName
             )
@@ -214,19 +198,19 @@ fun ExerciseModel.toExerciseComponentUIState(): ExerciseComponentUIState {
                 addIntensityToList(IntensityUnits.Forced, listOfIntensityComponentName)
                 exerciseComponentUIState.update {
                     it.copy(
-                        forcedText = mutableStateOf("Added"),
-                        forcedColor = mutableStateOf( BrightGreen),
-                        forcedClicked = mutableStateOf(true),
-                        forcedClickable = mutableStateOf(true),
+                        forcedText = "Added",
+                        forcedColor = BrightGreen,
+                        forcedClicked = true,
+                        forcedClickable = true,
                     )
                 }
             } else if (!intensitySelected.contains(IntensityUnits.Forced)) {
                 removeIntensityFromList(IntensityUnits.Forced, listOfIntensityComponentName)
                 exerciseComponentUIState.update {
                     it.copy(
-                        forcedText = mutableStateOf("Add"),
-                        forcedColor = mutableStateOf(Green),
-                        forcedClickable = mutableStateOf(true),
+                        forcedText = "Add",
+                        forcedColor = Green,
+                        forcedClickable = true,
                     )
                 }
             }
@@ -234,9 +218,9 @@ fun ExerciseModel.toExerciseComponentUIState(): ExerciseComponentUIState {
             removeIntensityFromList(IntensityUnits.Forced, listOfIntensityComponentName)
             exerciseComponentUIState.update {
                 it.copy(
-                    forcedText = mutableStateOf("Need Positive"),
-                    forcedColor = mutableStateOf(Color.Red),
-                    forcedClickable = mutableStateOf(true),
+                    forcedText = "Need Positive Reps",
+                    forcedColor = Color.Red,
+                    forcedClickable = true,
                 )
             }
         }
@@ -245,22 +229,18 @@ fun ExerciseModel.toExerciseComponentUIState(): ExerciseComponentUIState {
 
 //--------------------------------Negative-------------------------------------
     exerciseComponentUIState.update {
-        val difference: String = calculateDifference(
-            newRecord = value[IntensityUnits.Negative]!!.toDouble(),
-            oldRecord = previousReps[IntensityUnits.Negative]!!.toDouble())
-
         it.copy(
             negativePreviousReps = previousReps[IntensityUnits.Negative].toString(),
-            negativeDifference = difference
+            negativeDifference = "${ intensityDifference[IntensityUnits.Negative] }%"
         )
     }
     if (intensitySelected.contains(IntensityUnits.Negative)) {
         addIntensityToList(IntensityUnits.Negative, listOfIntensityComponentName)
         exerciseComponentUIState.update {
             it.copy(
-                negativeColor = mutableStateOf( BrightGreen),
-                negativeText = mutableStateOf("Added"),
-                negativeClicked = mutableStateOf(true),
+                negativeColor = BrightGreen,
+                negativeText = "Added",
+                negativeClicked = true,
 
                 listOfIntensityComponentName = listOfIntensityComponentName
             )
@@ -270,9 +250,9 @@ fun ExerciseModel.toExerciseComponentUIState(): ExerciseComponentUIState {
         removeIntensityFromList(IntensityUnits.Negative, listOfIntensityComponentName)
         exerciseComponentUIState.update {
             it.copy(
-                negativeText = mutableStateOf("Add"),
-                negativeColor = mutableStateOf(Green),
-                negativeClicked = mutableStateOf(false),
+                negativeText = "Add",
+                negativeColor = Green,
+                negativeClicked = false,
 
                 listOfIntensityComponentName = listOfIntensityComponentName
             )
@@ -282,26 +262,22 @@ fun ExerciseModel.toExerciseComponentUIState(): ExerciseComponentUIState {
 
 //-------------------------Forced-------------------------------------
     exerciseComponentUIState.update {
-        val difference: String = calculateDifference(
-            newRecord = value[IntensityUnits.Forced]!!.toDouble(),
-            oldRecord = previousReps[IntensityUnits.Forced]!!.toDouble())
-
         it.copy(
             forcedPreviousReps = previousReps[IntensityUnits.Forced].toString(),
-            forcedDifference = difference
+            forcedDifference = "${ intensityDifference[IntensityUnits.Forced] }%"
         )
     }
     if (intensitySelected.contains(IntensityUnits.Forced)) {
         addIntensityToList(IntensityUnits.Forced, listOfIntensityComponentName)
         exerciseComponentUIState.update {
             it.copy(
-                forcedColor = mutableStateOf( BrightGreen),
-                forcedText = mutableStateOf("Added"),
-                forcedClicked = mutableStateOf(true),
+                forcedColor = BrightGreen,
+                forcedText = "Added",
+                forcedClicked = true,
 
-                staticHoldText = mutableStateOf("Forced selected"),
-                staticHoldColor = mutableStateOf(Color.Red),
-                staticHoldClickable = mutableStateOf(false),
+                staticHoldText = "Forced selected",
+                staticHoldColor = Color.Red,
+                staticHoldClickable = false,
 
                 listOfIntensityComponentName = listOfIntensityComponentName
             )
@@ -312,9 +288,9 @@ fun ExerciseModel.toExerciseComponentUIState(): ExerciseComponentUIState {
             if (intensitySelected.contains(IntensityUnits.Static)) {
                 exerciseComponentUIState.update {
                     it.copy(
-                        forcedText = mutableStateOf("Static Selected"),
-                        forcedColor = mutableStateOf(Color.Red),
-                        forcedClicked = mutableStateOf(false),
+                        forcedText = "Static Selected",
+                        forcedColor = Color.Red,
+                        forcedClicked = false,
 
                         listOfIntensityComponentName = listOfIntensityComponentName
                     )
@@ -322,9 +298,9 @@ fun ExerciseModel.toExerciseComponentUIState(): ExerciseComponentUIState {
             } else {
                 exerciseComponentUIState.update {
                     it.copy(
-                        forcedText = mutableStateOf("Add"),
-                        forcedColor = mutableStateOf(Green),
-                        forcedClicked = mutableStateOf(false),
+                        forcedText = "Add",
+                        forcedColor = Green,
+                        forcedClicked = false,
 
                         listOfIntensityComponentName = listOfIntensityComponentName
                     )
@@ -334,10 +310,9 @@ fun ExerciseModel.toExerciseComponentUIState(): ExerciseComponentUIState {
         } else {
             exerciseComponentUIState.update {
                 it.copy(
-                    forcedText = mutableStateOf("Need Positive"),
-                    forcedColor = mutableStateOf(Color.Red),
-                    forcedClicked = mutableStateOf(false),
-
+                    forcedText = "Need Positive Reps",
+                    forcedColor = Color.Red,
+                    forcedClicked = false,
                     listOfIntensityComponentName = listOfIntensityComponentName
                 )
             }

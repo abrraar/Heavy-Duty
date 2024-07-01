@@ -48,7 +48,6 @@ fun NavGraphBuilder.bodyCompositionGraph(navHostController: NavHostController){
             val bodyCompositionRecordsViewModel = hiltViewModel<BodyCompositionRecordsViewModel>()
             val bodyCompositionRecordsUIState by bodyCompositionRecordsViewModel.bodyCompositionRecordsRecords.collectAsState()
             BodyCompositionRecord(
-                bodyCompositionRecordsViewModel = bodyCompositionRecordsViewModel,
                 bodyCompositionRecordsEvents = bodyCompositionRecordsViewModel::bodyCompositionRecordsEvents,
                 bodyCompositionRecordsUIState = bodyCompositionRecordsUIState
             )

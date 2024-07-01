@@ -1,6 +1,5 @@
 package com.example.heavyduty.presentation.view.screens.tracker.bodyComposition.bodyCompositionRecords
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,13 +14,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -31,7 +30,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.heavyduty.R
 import com.example.heavyduty.data.local.Constants.CANCEL
 import com.example.heavyduty.data.local.Constants.CONFIRM
@@ -42,11 +40,7 @@ import com.example.heavyduty.domain.model.tracker.bodyComposition.Height
 import com.example.heavyduty.domain.model.tracker.bodyComposition.MuscleMass
 import com.example.heavyduty.domain.model.tracker.bodyComposition.Weight
 import com.example.heavyduty.presentation.view.theme.CardInnerContentBackGround
-import com.example.heavyduty.presentation.view.theme.HeavyDutyTheme
-import com.example.heavyduty.presentation.view.theme.MainHIT
 import com.example.heavyduty.presentation.view.theme.ScreenBackgroundColor
-import com.example.heavyduty.presentation.view.theme.dimens
-import com.example.heavyduty.presentation.view.theme.onScreenBackgroundColor
 import com.example.heavyduty.presentation.view.util.prompts.Prompt
 import com.example.heavyduty.presentation.view.util.searchBars.SearchBar
 import com.example.heavyduty.presentation.viewModel.tracker.bodyComposition.bodyCompositionRecords.BodyCompositionRecordsEvents
@@ -56,7 +50,6 @@ import com.example.heavyduty.units.BodyCompositionComponents
 
 @Composable
 fun BodyCompositionRecord(
-    bodyCompositionRecordsViewModel: BodyCompositionRecordsViewModel,
     bodyCompositionRecordsEvents: (BodyCompositionRecordsEvents) -> Unit,
     bodyCompositionRecordsUIState: BodyCompositionRecordsUIState
 ){
@@ -239,8 +232,8 @@ private fun ComponentRow(unit: String)
             )
 
     ){
-        itemsIndexed(list)
-        { index, title ->
+        items(list)
+        { title ->
             CustomBox(
                 title = title,
                 unit = unit )
@@ -324,27 +317,13 @@ private fun CustomBox(
     }
 }
 
-@Composable
-@Preview(showSystemUi = true)
-private fun BodyCompositionRecordPreview(){
-    HeavyDutyTheme(dynamicColor = false) {
-        BodyCompositionRecord(
-            bodyCompositionRecordsViewModel = hiltViewModel(),
-            bodyCompositionRecordsEvents = {},
-            bodyCompositionRecordsUIState = BodyCompositionRecordsUIState()
-        )
-    }
-}
 
 @Preview(showBackground = true)
 @Composable
 private fun BodyCompositionRecordCardPreview(){
-    HeavyDutyTheme(dynamicColor = false) {
-        BodyCompositionRecordCard(
-            bodyCompositionRecordsEvents = {}
-        )
-    }
-
+    BodyCompositionRecordCard(
+        bodyCompositionRecordsEvents = {}
+    )
 }
 
 

@@ -40,7 +40,7 @@ fun ExerciseScreen(
             addClickable = {}
         )
         if(exerciseScreenUIState
-                .listOfCycle[exerciseScreenUIState.cycleIndex].second
+                .listOfCycle[exerciseScreenUIState.cycleIndex].cycleModel
                 .listOfWorkout[exerciseScreenUIState.workoutIndex]
                 .listOfExercise.isEmpty()){
             Column(
@@ -70,7 +70,7 @@ fun ExerciseScreen(
             ) {
                 itemsIndexed(
                     exerciseScreenUIState
-                        .listOfCycle[exerciseScreenUIState.cycleIndex].second
+                        .listOfCycle[exerciseScreenUIState.cycleIndex].cycleModel
                         .listOfWorkout[exerciseScreenUIState.workoutIndex]
                         .listOfExercise
                 ){

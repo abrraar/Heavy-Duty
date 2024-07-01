@@ -17,10 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.heavyduty.presentation.view.util.customTextField.CustomTextField
 
-@Composable
-fun WorkoutLogBookCustomCycle(){
-    
-}
+
 @Composable
 private fun AboutComponent()
 {

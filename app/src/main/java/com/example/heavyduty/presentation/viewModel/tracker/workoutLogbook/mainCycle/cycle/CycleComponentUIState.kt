@@ -1,6 +1,7 @@
 package com.example.heavyduty.presentation.viewModel.tracker.workoutLogbook.mainCycle.cycle
 
 import androidx.compose.ui.graphics.Color
+import com.example.heavyduty.domain.model.tracker.workoutLogbook.Cycle
 import com.example.heavyduty.domain.model.tracker.workoutLogbook.CycleModel
 import com.example.heavyduty.domain.model.tracker.workoutLogbook.WorkoutModel
 import com.example.heavyduty.presentation.view.theme.Green
@@ -11,7 +12,7 @@ data class CycleComponentUIState(
     val name: String = "",
     val startDate: String = "",
     val endDate: String = "",
-    val overallProgress: String = "",
+    var overallProgress: String = "",
     val color: Color = Color.Gray,
     val listOfWorkout: ArrayList<WorkoutModel> = arrayListOf()
 )
@@ -21,14 +22,14 @@ fun CycleComponentUIState.toCycleModel(): CycleModel {
         cycleName = name,
         startDate = startDate,
         endDate = endDate,
-        overallProgress = overallProgress.toDouble(),
+        overallProgress = overallProgress.toInt(),
         listOfWorkout = listOfWorkout
     )
 }
 fun CycleModel.toCycleComponentUIState(): CycleComponentUIState {
     val color =
         if (overallProgress > 0) { Green }
-        else if (overallProgress == 0.0) { Color.Gray }
+        else if (overallProgress == 0) { Color.Gray }
         else { Red }
 
     return CycleComponentUIState(

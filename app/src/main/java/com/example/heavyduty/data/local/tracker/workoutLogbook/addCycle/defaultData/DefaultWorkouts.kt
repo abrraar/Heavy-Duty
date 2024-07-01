@@ -13,7 +13,6 @@ import com.example.heavyduty.units.getUpperBodyMuscles
             workoutName =  "Chest and Back",
             listOfExercise = ChestAndBack,
             datePerformed = "",
-            overallProgress = 0.0,
             muscle = getUpperBodyMuscles()
         ),
         WorkoutModel(
@@ -21,7 +20,6 @@ import com.example.heavyduty.units.getUpperBodyMuscles
             workoutName = "Legs and Abs",
             listOfExercise = LegsAndAbs,
             datePerformed = "",
-            overallProgress = 0.0,
             muscle = getLowerBodyMuscles()
         ),
 
@@ -30,7 +28,6 @@ import com.example.heavyduty.units.getUpperBodyMuscles
             workoutName = "Shoulders and Arms",
             listOfExercise = ShouldersAndArms,
             datePerformed = "",
-            overallProgress = 0.0,
             muscle = getUpperBodyMuscles()
         ),
 
@@ -39,7 +36,6 @@ import com.example.heavyduty.units.getUpperBodyMuscles
             workoutName = "Legs and Abs",
             listOfExercise = LegsAndAbs,
             datePerformed = "",
-            overallProgress = 0.0,
             muscle = getLowerBodyMuscles()
         )
     ) }
@@ -53,7 +49,6 @@ import com.example.heavyduty.units.getUpperBodyMuscles
                 workoutName = "Workout Day 1",
                 listOfExercise = beginnerExercise,
                 datePerformed = "",
-                overallProgress = 0.0,
                 muscle = getAllMuscles()
             ),
             WorkoutModel(
@@ -61,7 +56,6 @@ import com.example.heavyduty.units.getUpperBodyMuscles
                 workoutName = "Workout Day 2",
                 listOfExercise = beginnerExercise,
                 datePerformed = "",
-                overallProgress = 0.0,
                 muscle = getAllMuscles()
             ),
             WorkoutModel(
@@ -69,7 +63,6 @@ import com.example.heavyduty.units.getUpperBodyMuscles
                 workoutName = "Workout Day 3",
                 listOfExercise = beginnerExercise,
                 datePerformed = "",
-                overallProgress = 0.0,
                 muscle = getAllMuscles()
             ),
             WorkoutModel(
@@ -77,7 +70,6 @@ import com.example.heavyduty.units.getUpperBodyMuscles
                 workoutName = "Workout Day 4",
                 listOfExercise = beginnerExercise,
                 datePerformed = "",
-                overallProgress = 0.0,
                 muscle = getAllMuscles()
             ),
             WorkoutModel(
@@ -85,7 +77,6 @@ import com.example.heavyduty.units.getUpperBodyMuscles
                 workoutName = "Workout Day 5",
                 listOfExercise = beginnerExercise,
                 datePerformed = "",
-                overallProgress = 0.0,
                 muscle = getAllMuscles()
             ),
             WorkoutModel(
@@ -93,7 +84,6 @@ import com.example.heavyduty.units.getUpperBodyMuscles
                 workoutName = "Workout Day 6",
                 listOfExercise = beginnerExercise,
                 datePerformed = "",
-                overallProgress = 0.0,
                 muscle = getAllMuscles()
             ),
             WorkoutModel(
@@ -101,7 +91,7 @@ import com.example.heavyduty.units.getUpperBodyMuscles
                 workoutName = "Workout Day 7",
                 listOfExercise = beginnerExercise,
                 datePerformed = "",
-                overallProgress = 0.0,
+                
                 muscle = getAllMuscles()
             ),
             WorkoutModel(
@@ -109,7 +99,7 @@ import com.example.heavyduty.units.getUpperBodyMuscles
                 workoutName = "Workout Day 8",
                 listOfExercise = beginnerExercise,
                 datePerformed = "",
-                overallProgress = 0.0,
+                
                 muscle = getAllMuscles()
             ),
             WorkoutModel(
@@ -117,7 +107,6 @@ import com.example.heavyduty.units.getUpperBodyMuscles
                 workoutName = "Workout Day 9",
                 listOfExercise = beginnerExercise,
                 datePerformed = "",
-                overallProgress = 0.0,
                 muscle = getAllMuscles()
             ),
             WorkoutModel(
@@ -125,7 +114,6 @@ import com.example.heavyduty.units.getUpperBodyMuscles
                 workoutName = "Workout Day 10",
                 listOfExercise = beginnerExercise,
                 datePerformed = "",
-                overallProgress = 0.0,
                 muscle = getAllMuscles()
             ),
         )
@@ -140,7 +128,6 @@ import com.example.heavyduty.units.getUpperBodyMuscles
                 workoutName = "Advance Workout 1",
                 listOfExercise = exerciseOne,
                 datePerformed = "",
-                overallProgress = 0.0,
                 muscle = getLowerBodyMuscles()
             ),
 
@@ -149,7 +136,6 @@ import com.example.heavyduty.units.getUpperBodyMuscles
                 workoutName = "Advance Workout 2",
                 listOfExercise = exerciseTwo,
                 datePerformed = "",
-                overallProgress = 0.0,
                 muscle = getLowerBodyMuscles()
             )
         )

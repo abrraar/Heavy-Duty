@@ -43,7 +43,7 @@ fun WorkoutLogBookRecycleBin(){
                             listOfWorkout = arrayListOf(),
                             startDate = "",
                             endDate = "",
-                            overallProgress = 0.0
+                            overallProgress = 0
                         )
                     )
                 )

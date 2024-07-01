@@ -99,7 +99,7 @@ fun CycleComponent(
                     2 -> "2nd Cycle"
                     3 -> "3rd Cycle"
                     else -> "${cycleNum}th Cycle"
-                                     },
+                    },
                 color = Color.White)
 
             Text(
@@ -122,7 +122,8 @@ fun CycleComponent(
             Text(
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleLarge,
-                text = if(cycleComponentUIState.baseCycle){"0.0%"}else{ cycleComponentUIState.overallProgress + "%"},
+                text = if(cycleComponentUIState.baseCycle){"${cycleComponentUIState.overallProgress}%"}
+                else{ "${cycleComponentUIState.overallProgress}%"},
                 color = if(cycleComponentUIState.baseCycle){
                     Color.White
                 }
@@ -194,7 +195,7 @@ private fun ComponentPreview(){
                 listOfWorkout = arrayListOf(),
                 startDate = "",
                 endDate = "",
-                overallProgress = 0.0
+                overallProgress = 0
             )
         )
     )

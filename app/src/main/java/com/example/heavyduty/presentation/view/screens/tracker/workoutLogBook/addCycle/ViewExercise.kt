@@ -77,6 +77,7 @@ fun ViewExercise(
                 Spacer(modifier = Modifier.padding(top = 7.dp))
                 ExerciseComponent(
                     exerciseModel = it,
+                    enableDeleteBtn = false,
                     exerciseEvents = {},
                     exerciseScreenUIState = ExerciseScreenUIState(),
                     exerciseNameStyle = MaterialTheme.typography.headlineSmall,

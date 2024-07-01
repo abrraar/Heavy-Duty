@@ -7,5 +7,6 @@ import com.example.heavyduty.domain.model.tracker.workoutLogbook.Cycle
 data class CycleScreenUIState(
     val deleteState: Boolean = false,
     val orderBy: String = "Descending",
-    val listOfCycle: SnapshotStateList<Pair<Cycle, CycleComponentUIState>> = mutableStateListOf()
+    val reverseLayout: Boolean = false,
+    val listOfCycle: SnapshotStateList<Cycle> = mutableStateListOf()
 )

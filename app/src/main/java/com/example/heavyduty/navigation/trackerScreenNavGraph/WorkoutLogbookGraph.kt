@@ -50,7 +50,7 @@ fun NavGraphBuilder.workoutLogbookGraph(
             val workoutUIState by workoutLogbookViewModel.workoutUIState.collectAsState()
             WorkoutScreen(
                 events = workoutLogbookViewModel::workoutEvents,
-                workoutUIState = workoutUIState,
+                workoutScreenUIState = workoutUIState,
                 navHostController = navHostController)
         }
         composable(route = NavigationScreenNames.WorkoutLogbookExercise.route)

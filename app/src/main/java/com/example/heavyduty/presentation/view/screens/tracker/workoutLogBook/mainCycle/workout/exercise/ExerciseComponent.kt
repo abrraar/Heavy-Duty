@@ -1,6 +1,5 @@
 package com.example.heavyduty.presentation.view.screens.tracker.workoutLogBook.mainCycle.workout.exercise
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -10,14 +9,19 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,9 +31,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -41,10 +47,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
+import com.example.heavyduty.R
 import com.example.heavyduty.domain.model.tracker.workoutLogbook.ExerciseModel
 import com.example.heavyduty.presentation.view.theme.CardInnerContentBackGround
 import com.example.heavyduty.presentation.view.theme.Green
 import com.example.heavyduty.presentation.view.theme.IntractableBackgroundColor
+import com.example.heavyduty.presentation.view.theme.NonIntractableBackgroundColor
 import com.example.heavyduty.presentation.view.util.customButton.CustomButton
 import com.example.heavyduty.presentation.view.util.customCard.CustomCard
 import com.example.heavyduty.presentation.view.util.customTextField.CustomTextField
@@ -80,12 +88,14 @@ fun ExerciseComponent(
     exerciseNumber: String = "1",
     exerciseScreenUIState: ExerciseScreenUIState,
     exerciseEvents: (ExerciseEvents) -> Unit,
+    enableDeleteBtn: Boolean = true,
     exerciseComponentUIState: ExerciseComponentUIState,
     exerciseNameStyle: TextStyle = MaterialTheme.typography.headlineMedium,
 )
 {
     var intensityComponentClicked by remember { mutableStateOf(false) }
     var deleteExercise by remember { mutableStateOf(false) }
+    var showMore by remember { mutableStateOf(false) }
 
     if(deleteExercise){
         val context  = LocalContext.current
@@ -108,7 +118,7 @@ fun ExerciseComponent(
     }
 
     CustomCard(
-        enableDeleteBtn = true,
+        enableDeleteBtn = enableDeleteBtn,
         deleteBtn = { deleteExercise = true },
         header = "Exercise $exerciseNumber" ,
         textAlign = Alignment.Start,
@@ -161,262 +171,85 @@ fun ExerciseComponent(
                 }
 
                 if(exerciseComponentUIState.listOfIntensityComponentName.size > 0){
-                    Column(
-                        modifier = Modifier
-                            .padding(top = 15.dp)
-                            .width(300.dp)
-                            .height((104 + (exerciseComponentUIState.listOfIntensityComponentName.size * 50) + (exerciseComponentUIState.listOfIntensityComponentName.size)).dp)
-                            .background(
-                                color = CardInnerContentBackGround,
-                                shape = RoundedCornerShape(20.dp)
-                            )
-                    ) {
-                        HeaderRow()
-                        var weight by remember { mutableStateOf(exerciseModel.weight.toString()) }
-                        val pattern = Pattern.compile("^(\\d{0,4}+)?([.]?\\d{0,2}?$)")
-                        BodyRow(
-                            value = weight,
-                            onValueChange = {
-                                val matcher = pattern.matcher(it)
-                                if(it != "."){
-                                    if(matcher.matches()){
-                                        weight = it
-                                    }
-                                }
-                                exerciseEvents(ExerciseEvents.AddWeight(
-                                    index = exerciseNumber.toInt().minus(1),
-                                    weight = weight,
-                                    cycleIndex = exerciseScreenUIState.cycleIndex,
-                                    workoutIndex = exerciseScreenUIState.workoutIndex,
-                                    exerciseModel = exerciseModel
-                                ))
-                            },
-                            previousValue = exerciseComponentUIState.previousWeight,
-                            difference = exerciseComponentUIState.weightDifference,
-                            keyboardType = KeyboardType.Decimal,
-                            intensityComponentText = "Weight",
-                            bottomCorner = 0
-                        )
-                        LazyColumn(userScrollEnabled = false){
-                            items(exerciseComponentUIState.listOfIntensityComponentName.size)
-                            {
-                                val intensityUnit = exerciseComponentUIState.listOfIntensityComponentName[it]
-                                var posRep by remember {
-                                    mutableStateOf(exerciseModel.value[IntensityUnits.Positive].toString())
-                                }
-                                var statRep by remember {
-                                    mutableStateOf(exerciseModel.value[IntensityUnits.Static].toString())
-                                }
-                                var negRep by remember {
-                                    mutableStateOf(exerciseModel.value[IntensityUnits.Negative].toString())
-                                }
-                                var forRep by remember {
-                                    mutableStateOf(exerciseModel.value[IntensityUnits.Forced].toString())
-                                }
-                                var preRep by remember {
-                                    mutableStateOf(exerciseModel.value[IntensityUnits.PreExhaust].toString())
-                                }
-                                val charLimit = 2
-                                val staticLimit = 3
-                                BodyRow(
-                                    value = when(intensityUnit){
-                                        IntensityUnits.Positive -> posRep
-                                        IntensityUnits.Static -> statRep
-                                        IntensityUnits.Negative -> negRep
-                                        IntensityUnits.Forced -> forRep
-                                        IntensityUnits.PreExhaust -> preRep
-                                    },
-                                    onValueChange = {
-                                        text ->
-                                        when(intensityUnit){
-                                            IntensityUnits.Positive -> {
-                                                Log.i("text", text.length.toString())
-                                                if (text.length <= charLimit) {
-                                                    posRep = text
-                                                }
-                                            }
-
-                                            IntensityUnits.Static -> {
-                                                if(text.length <= staticLimit){
-                                                    statRep = text
-                                                }
-
-                                            }
-                                            IntensityUnits.Negative -> {
-                                                if(text.length <= charLimit){
-                                                    negRep = text
-                                                }
-
-                                            }
-                                            IntensityUnits.Forced -> {
-                                                if(text.length <= charLimit){
-                                                    forRep = text
-                                                }
-
-                                            }
-                                            IntensityUnits.PreExhaust -> {
-                                                if(text.length <= charLimit){
-                                                    preRep = text
-                                                }
-
-                                            }
-                                        }
-                                        exerciseEvents(
-                                            ExerciseEvents.AddReps(
-                                                intensityUnit = intensityUnit,
-                                                exerciseModel = exerciseModel,
-                                                cycleNumber = exerciseScreenUIState.cycleIndex,
-                                                workoutNumber = exerciseScreenUIState.workoutIndex,
-                                                reps = when(intensityUnit ){
-                                                    IntensityUnits.Positive -> posRep
-                                                    IntensityUnits.Static -> statRep
-                                                    IntensityUnits.Negative -> negRep
-                                                    IntensityUnits.Forced -> forRep
-                                                    IntensityUnits.PreExhaust -> preRep
-                                                }
-                                            )
-                                        )
-                                    },
-                                    previousValue = when(intensityUnit){
-                                        IntensityUnits.Positive -> { exerciseComponentUIState.positivePreviousReps }
-                                        IntensityUnits.Static -> { exerciseComponentUIState.staticPreviousReps }
-                                        IntensityUnits.Negative -> { exerciseComponentUIState.negativePreviousReps }
-                                        IntensityUnits.Forced -> { exerciseComponentUIState.forcedPreviousReps }
-                                        IntensityUnits.PreExhaust -> { exerciseComponentUIState.preExhaustPreviousReps }
-                                    },
-                                    difference = when(intensityUnit){
-                                        IntensityUnits.Positive -> { exerciseComponentUIState.positiveDifference }
-                                        IntensityUnits.Static -> { exerciseComponentUIState.staticDifference }
-                                        IntensityUnits.Negative -> { exerciseComponentUIState.negativeDifference }
-                                        IntensityUnits.Forced -> { exerciseComponentUIState.forcedDifference }
-                                        IntensityUnits.PreExhaust -> { "" }
-                                    },
-                                    intensityComponentText = exerciseComponentUIState.listOfIntensityComponentName[it].component,
-                                    bottomCorner = if(it +1 == exerciseComponentUIState.listOfIntensityComponentName.size){ 20 } else{ 0 }
+                    Body(
+                        modifier = Modifier.padding(top = 15.dp),
+                        exerciseNumber = exerciseNumber,
+                        listOfIntensityUnits = exerciseComponentUIState.listOfIntensityComponentName,
+                        exerciseComponentUIState = exerciseComponentUIState,
+                        exerciseScreenUIState = exerciseScreenUIState,
+                        exerciseEvents = exerciseEvents,
+                        exerciseModel = exerciseModel
+                    )
+                    if(!exerciseScreenUIState.baseCycle){
+                        Row(
+                            modifier = Modifier
+                                .padding(top = 15.dp)
+                                .width(300.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            Row(
+                                modifier = Modifier.clickable { showMore = !showMore }
+                            ) {
+                                Text(
+                                    text = if(!showMore){"Show more"}else{"Show less"},
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = MaterialTheme.colorScheme.onPrimary
                                 )
+                                Icon(
+                                    painter = painterResource(
+                                        id = if (!showMore) {
+                                            R.drawable.arrow_down_icn
+                                        } else {
+                                            R.drawable.arrow_up_icn
+                                        }
+                                    ), contentDescription = "arrow")
+                            }
+                        }
+                        if (showMore){
+                            Row(
+                                modifier = Modifier
+                                    .padding(top = 15.dp)
+                                    .width(300.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                Row(
+                                    modifier = Modifier.weight(1f)
+                                ){
+                                    Text(
+                                        text = "Total difference :",
+                                        textAlign = TextAlign.Center,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                }
+                                Row(
+                                    modifier = Modifier.weight(1f),
+                                    horizontalArrangement = Arrangement.End
+                                ) {
+                                    Text(
+                                        text = exerciseComponentUIState.totalDifference,
+                                        textAlign = TextAlign.Center,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                }
                             }
                         }
                     }
                 }
                 else{
                     Text(
-                        modifier = Modifier.padding(top = 10.dp, bottom = 10.dp),
+                        modifier = Modifier.padding(top = 15.dp),
                         textAlign = TextAlign.Center,
-                        text = "No intensity component is selected",
+                        text = "No intensity component selected",
                         color = MaterialTheme.colorScheme.onSecondary,
-                        style = MaterialTheme.typography.titleSmall)
+                        style = MaterialTheme.typography.titleMedium)
                 }
+
                 Spacer(modifier = Modifier.padding(10.dp))
-            }
-        }
-    }
-}
-
-@Composable
-private fun HeaderRow(){
-    LazyRow(
-        userScrollEnabled = false,
-        modifier = Modifier
-            .background(
-                color = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp))){
-        items(4)
-        {
-            Box(modifier = Modifier
-                .height(50.dp)
-                .width(75.dp),
-                contentAlignment = Alignment.Center) {
-                Text(
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.labelSmall,
-                    text = when(it){
-                        0 -> "Units"
-                        1 -> "Value"
-                        2 -> "Previous\nvalue"
-                        3 -> "Difference"
-                        else -> "lol"
-                    },
-                    color = MaterialTheme.colorScheme.onPrimary)
-            }
-        }
-    }
-}
-
-@Composable
-private fun BodyRow(
-    value: String = "",
-    keyboardType: KeyboardType = KeyboardType.NumberPassword,
-    onValueChange: (String) -> Unit,
-    intensityComponentText: String =  "",
-    previousValue: String = "",
-    difference: String = "",
-    bottomCorner: Int = 20
-){
-
-    LazyRow(
-        userScrollEnabled = false,
-        modifier = Modifier
-            .padding(top = 2.dp)) {
-        items(4){
-            Box(modifier = Modifier
-                .background(
-                    color = when (it) {
-                        0 -> MaterialTheme.colorScheme.primary
-                        else -> Color.DarkGray
-                    },
-                    shape = RoundedCornerShape(
-                        bottomEnd = if (it == 3) {
-                            bottomCorner.dp
-                        } else {
-                            0.dp
-                        },
-                        bottomStart = if (it == 0) {
-                            bottomCorner.dp
-                        } else {
-                            0.dp
-                        }
-                    )
-                )
-                .height(50.dp)
-                .width(75.dp),
-                contentAlignment = Alignment.Center)
-            {
-                when(it){
-                    1 -> CustomTextField(
-                        value = value,
-                        onValueChange = onValueChange,
-                        imeAction = ImeAction.Done,
-                        keyboardType = keyboardType,
-                        fontSize = MaterialTheme.typography.headlineSmall.fontSize,
-                        fontColor = MaterialTheme.colorScheme.onPrimary,
-                        singleLine = true,
-                        placeholderText = "",
-                        placeholderStyle = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier
-                            .height(50.dp)
-                            .width(70.dp)
-                            .background(
-                                color = IntractableBackgroundColor,
-                                shape = RoundedCornerShape(0.dp)
-                            )
-                    )
-                    else ->  Text(
-                        text = when(it){
-                            0 -> intensityComponentText
-                            2 -> previousValue
-                            3 -> difference
-                            else -> ""
-                        },
-                        textAlign = TextAlign.Center,
-                        style =  when(it){
-                            0 -> MaterialTheme.typography.labelSmall
-                            else -> MaterialTheme.typography.headlineSmall
-                        },
-                        color = when(it){
-                            0 -> MaterialTheme.colorScheme.onPrimary
-                            else -> MaterialTheme.colorScheme.onBackground
-                        })
-                }
             }
         }
     }
@@ -454,19 +287,8 @@ private fun IntensityExtension(
                     when(it){
                         // Positive Click
                         0 -> {
-                            if (!exerciseComponentUIState.positiveClicked.value)
+                            if (!exerciseComponentUIState.positiveClicked)
                             {
-                                // Removing positive
-//                                exerciseComponentUIState.positiveRepColor.value = Green
-//                                exerciseComponentUIState.positiveText.value = "Add"
-//                                exerciseComponentUIState.positiveClicked.value = true
-//
-//                                exerciseComponentUIState.forcedColor.value = Color.Red
-//                                exerciseComponentUIState.forcedText.value = if(exerciseComponentUIState.staticClicked.value){"Static selected"}else{"Need Positive"}
-//                                exerciseComponentUIState.forcedClickable.value = false
-//                                exerciseComponentUIState.forcedClicked.value = false
-//
-//                                exerciseComponentUIState.listOfIntensityComponentName.remove(IntensityUnits.Positive)
                                 // data persist
                                 exerciseEvents(ExerciseEvents.DeleteIntensityComponent(
                                     intensityUnit = IntensityUnits.Positive,
@@ -474,7 +296,6 @@ private fun IntensityExtension(
                                     workoutNumber = exerciseScreenUIState.workoutIndex,
                                     exerciseModel = exerciseModel
                                 ))
-
                                 exerciseEvents(ExerciseEvents.DeleteIntensityComponent(
                                     intensityUnit = IntensityUnits.Forced,
                                     cycleNumber = exerciseScreenUIState.cycleIndex,
@@ -485,26 +306,6 @@ private fun IntensityExtension(
                             }
                             else
                             {
-                                // Adding Positive
-//                                exerciseComponentUIState.positiveRepColor.value = BrightGreen
-//                                exerciseComponentUIState.positiveText.value = "Added"
-//                                exerciseComponentUIState.positiveClicked.value = false
-//                                exerciseComponentUIState.listOfIntensityComponentName.add(IntensityUnits.Positive)
-//
-//                                if(exerciseComponentUIState.staticClicked.value)
-//                                {
-//                                    exerciseComponentUIState.forcedColor.value = Color.Red
-//                                    exerciseComponentUIState.forcedText.value = "Static selected"
-//                                    exerciseComponentUIState.forcedClickable.value = false
-//                                    exerciseComponentUIState.forcedClicked.value = false
-//                                }
-//                                else
-//                                {
-//                                    exerciseComponentUIState.forcedColor.value = Green
-//                                    exerciseComponentUIState.forcedText.value = "Add"
-//                                    exerciseComponentUIState.forcedClickable.value = true
-//                                    exerciseComponentUIState.forcedClicked.value = false
-//                                }
                                 // Update Database
                                 exerciseEvents(ExerciseEvents.AddIntensityComponent(
                                     intensityUnit = IntensityUnits.Positive,
@@ -518,50 +319,16 @@ private fun IntensityExtension(
                         // Static Click
                         1 -> {
 
-                            if (exerciseComponentUIState.staticHoldClickable.value && !exerciseComponentUIState.staticClicked.value) {
-                                // Adding Static
-//                                exerciseComponentUIState.staticHoldColor.value = BrightGreen
-//                                exerciseComponentUIState.staticHoldText.value = "Added"
-//                                exerciseComponentUIState.staticClicked.value = true
-//                                exerciseComponentUIState.listOfIntensityComponentName.forEach { it -> Log.i("list component", it.component) }
-//
-//                                exerciseComponentUIState.forcedColor.value = Color.Red
-//                                exerciseComponentUIState.forcedText.value = "Static selected"
-//                                exerciseComponentUIState.forcedClickable.value = false
-//
-//                                exerciseComponentUIState.listOfIntensityComponentName.add(IntensityUnits.Static)
-
+                            if (exerciseComponentUIState.staticHoldClickable && !exerciseComponentUIState.staticClicked) {
                                 exerciseEvents(ExerciseEvents.AddIntensityComponent(
                                     intensityUnit = IntensityUnits.Static,
                                     cycleNumber = exerciseScreenUIState.cycleIndex,
                                     workoutNumber = exerciseScreenUIState.workoutIndex,
                                     exerciseModel = exerciseModel,
                                 ))
-
-
                             }
-                            else if (exerciseComponentUIState.staticHoldClickable.value && exerciseComponentUIState.staticClicked.value)
+                            else if (exerciseComponentUIState.staticHoldClickable && exerciseComponentUIState.staticClicked)
                             {
-//                                exerciseComponentUIState.staticHoldColor.value = Green
-//                                exerciseComponentUIState.staticHoldText.value = "Add"
-//                                exerciseComponentUIState.staticClicked.value = false
-//                                exerciseComponentUIState.listOfIntensityComponentName.remove(IntensityUnits.Static)
-//
-//                                if(exerciseComponentUIState.listOfIntensityComponentName.contains(IntensityUnits.Positive))
-//                                {
-//                                    exerciseComponentUIState.forcedColor.value = Green
-//                                    exerciseComponentUIState.forcedText.value = "Add"
-//                                    exerciseComponentUIState.forcedClickable.value = true
-//                                }
-//                                else
-//                                {
-//                                    exerciseComponentUIState.forcedColor.value = Color.Red
-//                                    exerciseComponentUIState.forcedText.value = "Need Positive"
-//                                    exerciseComponentUIState.forcedClickable.value = false
-//                                    exerciseComponentUIState.forcedClicked.value = false
-//
-//                                }
-
                                 //Delete Static
                                 exerciseEvents(ExerciseEvents.DeleteIntensityComponent(
                                     intensityUnit = IntensityUnits.Static,
@@ -569,24 +336,17 @@ private fun IntensityExtension(
                                     workoutNumber = exerciseScreenUIState.workoutIndex,
                                     exerciseModel = exerciseModel
                                 ))
-
                             }
                             else
                             {
-                                if(exerciseComponentUIState.forcedClicked.value){
+                                if(exerciseComponentUIState.forcedClicked){
                                     Toast.makeText(context, "de-select forced reps to select static hold", Toast.LENGTH_SHORT).show()
                                 }
-
                             }
                         }
                         // Negative Click
                         2 -> {
-                            if (!exerciseComponentUIState.negativeClicked.value) {
-//                                exerciseComponentEvents(
-//                                    ExerciseComponentEvents.IntensityComponentClicked(
-//                                        IntensityUnits.Negative
-//                                    )
-//                                )
+                            if (!exerciseComponentUIState.negativeClicked) {
 
                                 exerciseEvents(ExerciseEvents.AddIntensityComponent(
                                     intensityUnit = IntensityUnits.Negative,
@@ -596,11 +356,6 @@ private fun IntensityExtension(
                                 ))
                             }
                             else  {
-//                                exerciseComponentEvents(
-//                                    ExerciseComponentEvents.IntensityComponentClicked(
-//                                        IntensityUnits.Negative
-//                                    )
-//                                )
                                 //Delete Static
                                 exerciseEvents(ExerciseEvents.DeleteIntensityComponent(
                                     intensityUnit = IntensityUnits.Negative,
@@ -612,18 +367,11 @@ private fun IntensityExtension(
                         }
                         // Forced Click
                         3 -> {
-
-                            if (exerciseComponentUIState.forcedClickable.value &&
-                                !exerciseComponentUIState.forcedClicked.value &&
-                                !exerciseComponentUIState.positiveClicked.value &&
-                                !exerciseComponentUIState.staticClicked.value)
+                            if (exerciseComponentUIState.forcedClickable &&
+                                !exerciseComponentUIState.forcedClicked &&
+                                !exerciseComponentUIState.positiveClicked &&
+                                !exerciseComponentUIState.staticClicked)
                             {
-//                                exerciseComponentEvents(
-//                                    ExerciseComponentEvents.IntensityComponentClicked(
-//                                        IntensityUnits.Forced
-//                                    )
-//                                )
-                                Log.i("force", "added")
                                 exerciseEvents(ExerciseEvents.AddIntensityComponent(
                                     intensityUnit = IntensityUnits.Forced,
                                     cycleNumber = exerciseScreenUIState.cycleIndex,
@@ -631,13 +379,7 @@ private fun IntensityExtension(
                                     exerciseModel = exerciseModel,
                                 ))
                             }
-                            else if (exerciseComponentUIState.forcedClickable.value && exerciseComponentUIState.forcedClicked.value) {
-//                                exerciseComponentEvents(
-//                                    ExerciseComponentEvents.IntensityComponentClicked(
-//                                        IntensityUnits.Forced
-//                                    )
-//                                )
-                                Log.i("force", "delete")
+                            else if (exerciseComponentUIState.forcedClickable && exerciseComponentUIState.forcedClicked) {
                                 //Delete Static
                                 exerciseEvents(ExerciseEvents.DeleteIntensityComponent(
                                     intensityUnit = IntensityUnits.Forced,
@@ -647,18 +389,13 @@ private fun IntensityExtension(
                                 ))
                             }
                             else {
-                                if(exerciseComponentUIState.positiveClicked.value){
+                                if(exerciseComponentUIState.positiveClicked){
                                     Toast.makeText(context, "need positive reps\nto perform forced reps", Toast.LENGTH_SHORT).show()
                                 }
-                                if(exerciseComponentUIState.staticClicked.value){
+                                if(exerciseComponentUIState.staticClicked){
                                     Toast.makeText(context, "de-select static to select forced", Toast.LENGTH_SHORT).show()
                                 }
                             }
-                            Log.i("force", "nothing")
-                            Log.i("force clickable", exerciseComponentUIState.forcedClickable.value.toString())
-                            Log.i("force click", exerciseComponentUIState.forcedClicked.value.toString())
-                            Log.i("positive click", exerciseComponentUIState.positiveClicked.value.toString())
-                            Log.i("static click", exerciseComponentUIState.staticClicked.value.toString())
                         }
                         //Pre Exhaust Click
                         4 -> {
@@ -681,19 +418,19 @@ private fun IntensityExtension(
                 },
                 modifier = Modifier.padding(top = 20.dp),
                 selectedIndicator = when(it){
-                    0 -> exerciseComponentUIState.positiveText.value
-                    1 -> exerciseComponentUIState.staticHoldText.value
-                    2 -> exerciseComponentUIState.negativeText.value
-                    3 -> exerciseComponentUIState.forcedText.value
+                    0 -> exerciseComponentUIState.positiveText
+                    1 -> exerciseComponentUIState.staticHoldText
+                    2 -> exerciseComponentUIState.negativeText
+                    3 -> exerciseComponentUIState.forcedText
                     4 -> exerciseComponentUIState.preExhaustText
                     else -> ""
                 },
                 color = when(it){
                     0 -> exerciseComponentUIState.positiveRepColor
-                    1 -> exerciseComponentUIState.staticHoldColor.value
-                    2 -> exerciseComponentUIState.negativeColor.value
-                    3 -> exerciseComponentUIState.forcedColor.value
-                    4 -> exerciseComponentUIState.preExhaustColor.value
+                    1 -> exerciseComponentUIState.staticHoldColor
+                    2 -> exerciseComponentUIState.negativeColor
+                    3 -> exerciseComponentUIState.forcedColor
+                    4 -> exerciseComponentUIState.preExhaustColor
                     else -> Color.Green },
                 intensityComponentName = when(it){
                     0 -> "Positive Reps"
@@ -726,6 +463,7 @@ private fun IntensityComponent(
                 color = color,
                 shape = RoundedCornerShape(20.dp)
             )
+            .clip(shape = RoundedCornerShape(20.dp))
             .height(100.dp)
             .width(220.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -737,6 +475,7 @@ private fun IntensityComponent(
                     color = MaterialTheme.colorScheme.secondary,
                     shape = RoundedCornerShape(20.dp)
                 )
+                .clip(shape = RoundedCornerShape(20.dp))
                 .height(60.dp)
                 .width(200.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -755,6 +494,495 @@ private fun IntensityComponent(
 
     }
 }
+
+@Composable
+private fun Body(
+    modifier: Modifier = Modifier,
+    listOfIntensityUnits: List<IntensityUnits> = emptyList(),
+    exerciseComponentUIState: ExerciseComponentUIState,
+    exerciseScreenUIState: ExerciseScreenUIState,
+    exerciseEvents: (ExerciseEvents) -> Unit,
+    exerciseNumber: String = "1",
+    exerciseModel: ExerciseModel,
+){
+    var weight by remember { mutableStateOf(exerciseModel.weight.toString()) }
+    var posRep by remember { mutableStateOf(exerciseModel.value[IntensityUnits.Positive].toString()) }
+    var statRep by remember { mutableStateOf(exerciseModel.value[IntensityUnits.Static].toString()) }
+    var negRep by remember { mutableStateOf(exerciseModel.value[IntensityUnits.Negative].toString()) }
+    var forRep by remember { mutableStateOf(exerciseModel.value[IntensityUnits.Forced].toString()) }
+    var preRep by remember { mutableStateOf(exerciseModel.value[IntensityUnits.PreExhaust].toString()) }
+    val pattern = Pattern.compile("^(\\d{0,4}+)?([.]?\\d{0,2}?$)")
+    val charLimit = 2
+    val staticLimit = 3
+    val height = (listOfIntensityUnits.size * 60) + 120
+
+    Row(
+        modifier = modifier
+            .width(300.dp)
+            .height(height.dp)
+            .background(color = CardInnerContentBackGround, shape = RoundedCornerShape(20.dp))
+            .clip(shape = RoundedCornerShape(20.dp))
+    ) {
+        Column(
+            modifier = Modifier.weight(1.5f),
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .height(60.dp)
+                    .padding(bottom = 2.dp)
+                    .background(color = MaterialTheme.colorScheme.primary),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Unit",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .height(60.dp)
+                    .background(color = MaterialTheme.colorScheme.primary),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Weight",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+            LazyColumn(
+                userScrollEnabled = false
+            ) {
+                // List Intensity selected
+                items(listOfIntensityUnits){
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(1f)
+                            .height(60.dp)
+                            .padding(top = 2.dp,)
+                            .background(color = MaterialTheme.colorScheme.primary),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth(1f)
+                                .padding(start = 15.dp, end = 15.dp),
+                            text = when(it){
+                                IntensityUnits.Positive -> "Positive Reps"
+                                IntensityUnits.Static -> "Static Hold"
+                                IntensityUnits.Negative -> "Negative Reps"
+                                IntensityUnits.Forced -> "Forced Reps"
+                                IntensityUnits.PreExhaust -> "Pre Exhaust"
+                            },
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                }
+            }
+        }
+
+        if(exerciseScreenUIState.baseCycle){
+            Column(
+                modifier = Modifier.weight(2f)
+            ){
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(1f)
+                        .height(60.dp)
+                        .padding(start = 2.dp, bottom = 2.dp)
+                        .background(color = MaterialTheme.colorScheme.primary),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        modifier = Modifier.padding(10.dp),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        text = "Value"
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(1f)
+                        .height(60.dp)
+                        .padding(start = 2.dp)
+                        .background(color = NonIntractableBackgroundColor),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CustomTextField(
+                        value = weight,
+                        onValueChange = {
+                            val matcher = pattern.matcher(it)
+                            if(it != "."){
+                                if(matcher.matches()){
+                                    weight = it
+                                }
+                            }
+                            exerciseEvents(ExerciseEvents.AddWeight(
+                                index = exerciseNumber.toInt().minus(1),
+                                weight = weight,
+                                cycleIndex = exerciseScreenUIState.cycleIndex,
+                                workoutIndex = exerciseScreenUIState.workoutIndex,
+                                exerciseModel = exerciseModel
+                            ))
+                        },
+                        imeAction = ImeAction.Done,
+                        keyboardType = KeyboardType.Number,
+                        fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                        fontColor = MaterialTheme.colorScheme.onPrimary,
+                        singleLine = true,
+                        placeholderText = "",
+                        placeholderStyle = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier
+                            .fillMaxWidth(1f)
+                            .fillMaxHeight(1f)
+                            .background(
+                                color = IntractableBackgroundColor,
+                                shape = RoundedCornerShape(0.dp)
+                            )
+                    )
+                }
+                LazyColumn(
+                    modifier = Modifier,
+                    userScrollEnabled = false
+                ) {
+                    items(listOfIntensityUnits){
+                        c ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(1f)
+                                .height(60.dp)
+                                .padding(start = 2.dp, top = 2.dp)
+                                .background(color = NonIntractableBackgroundColor),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CustomTextField(
+                                value = when(c){
+                                    IntensityUnits.Positive -> posRep
+                                    IntensityUnits.Static -> statRep
+                                    IntensityUnits.Negative -> negRep
+                                    IntensityUnits.Forced -> forRep
+                                    IntensityUnits.PreExhaust -> preRep
+                                },
+                                onValueChange = {
+                                        text ->
+                                    when(c){
+                                        IntensityUnits.Positive -> {
+                                            if (text.length <= charLimit) {
+                                                posRep = text
+                                            }
+                                        }
+
+                                        IntensityUnits.Static -> {
+                                            if(text.length <= staticLimit){
+                                                statRep = text
+                                            }
+
+                                        }
+                                        IntensityUnits.Negative -> {
+                                            if(text.length <= charLimit){
+                                                negRep = text
+                                            }
+
+                                        }
+                                        IntensityUnits.Forced -> {
+                                            if(text.length <= charLimit){
+                                                forRep = text
+                                            }
+
+                                        }
+                                        IntensityUnits.PreExhaust -> {
+                                            if(text.length <= charLimit){
+                                                preRep = text
+                                            }
+
+                                        }
+                                    }
+                                    exerciseEvents(
+                                        ExerciseEvents.AddReps(
+                                            intensityUnit = c,
+                                            exerciseModel = exerciseModel,
+                                            cycleNumber = exerciseScreenUIState.cycleIndex,
+                                            workoutNumber = exerciseScreenUIState.workoutIndex,
+                                            reps = when(c){
+                                                IntensityUnits.Positive -> posRep
+                                                IntensityUnits.Static -> statRep
+                                                IntensityUnits.Negative -> negRep
+                                                IntensityUnits.Forced -> forRep
+                                                IntensityUnits.PreExhaust -> preRep
+                                            }
+                                        )
+                                    )
+                                },
+                                imeAction = ImeAction.Done,
+                                keyboardType = KeyboardType.Number,
+                                fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                                fontColor = MaterialTheme.colorScheme.onPrimary,
+                                singleLine = true,
+                                placeholderText = "",
+                                placeholderStyle = MaterialTheme.typography.headlineSmall,
+                                modifier = Modifier
+                                    .fillMaxWidth(1f)
+                                    .fillMaxHeight(1f)
+                                    .background(
+                                        color = IntractableBackgroundColor,
+                                        shape = RoundedCornerShape(0.dp)
+                                    )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        else{
+            LazyRow (
+                modifier = Modifier.weight(2f)
+            ){
+                items(3){
+                        r ->
+                    LazyColumn(
+                        modifier = Modifier,
+                        userScrollEnabled = false
+                    ) {
+                        // Header
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .width(120.dp)
+                                    .height(60.dp)
+                                    .padding(start = 2.dp, bottom = 2.dp)
+                                    .background(color = MaterialTheme.colorScheme.primary),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    modifier = Modifier.padding(10.dp),
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    text = when(r){
+                                        0 -> "Value"
+                                        1 -> "Previous Value"
+                                        2 -> "Difference"
+                                        else -> ""
+                                    }
+                                )
+                            }
+                            // Weight
+                            Box(
+                                modifier = Modifier
+                                    .width(120.dp)
+                                    .height(60.dp)
+                                    .padding(start = 2.dp)
+                                    .background(color = NonIntractableBackgroundColor),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                when(r){
+                                    0 -> {
+                                        CustomTextField(
+                                            value = weight,
+                                            onValueChange = {
+                                                val matcher = pattern.matcher(it)
+                                                if(it != "."){
+                                                    if(matcher.matches()){
+                                                        weight = it
+                                                    }
+                                                }
+                                                exerciseEvents(ExerciseEvents.AddWeight(
+                                                    index = exerciseNumber.toInt().minus(1),
+                                                    weight = weight,
+                                                    cycleIndex = exerciseScreenUIState.cycleIndex,
+                                                    workoutIndex = exerciseScreenUIState.workoutIndex,
+                                                    exerciseModel = exerciseModel
+                                                ))
+                                            },
+                                            imeAction = ImeAction.Done,
+                                            keyboardType = KeyboardType.Number,
+                                            fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                                            fontColor = MaterialTheme.colorScheme.onPrimary,
+                                            singleLine = true,
+                                            placeholderText = "",
+                                            placeholderStyle = MaterialTheme.typography.headlineSmall,
+                                            modifier = Modifier
+                                                .fillMaxWidth(1f)
+                                                .fillMaxHeight(1f)
+                                                .background(
+                                                    color = IntractableBackgroundColor,
+                                                    shape = RoundedCornerShape(0.dp)
+                                                )
+                                        )
+                                    }
+                                    1 -> {
+                                        Text(
+                                            text = exerciseComponentUIState.previousWeight,
+                                            textAlign = TextAlign.Center,
+                                            style = MaterialTheme.typography.titleLarge,
+                                            color = MaterialTheme.colorScheme.onPrimary
+                                        )
+                                    }
+                                    2 -> {
+                                        Text(
+                                            text = exerciseComponentUIState.weightDifference,
+                                            textAlign = TextAlign.Center,
+                                            style = MaterialTheme.typography.titleLarge,
+                                            color = MaterialTheme.colorScheme.onPrimary
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        // Intensity selected
+                        items(listOfIntensityUnits){
+                                c ->
+                            Box(
+                                modifier = Modifier
+                                    .width(120.dp)
+                                    .height(60.dp)
+                                    .padding(start = 2.dp, top = 2.dp)
+                                    .background(color = NonIntractableBackgroundColor),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                when(r){
+                                    0 -> {
+                                        CustomTextField(
+                                            value = when(c){
+                                                IntensityUnits.Positive -> posRep
+                                                IntensityUnits.Static -> statRep
+                                                IntensityUnits.Negative -> negRep
+                                                IntensityUnits.Forced -> forRep
+                                                IntensityUnits.PreExhaust -> preRep
+                                            },
+                                            onValueChange = {
+                                                    text ->
+                                                when(c){
+                                                    IntensityUnits.Positive -> {
+                                                        if (text.length <= charLimit) {
+                                                            posRep = text
+                                                        }
+                                                    }
+
+                                                    IntensityUnits.Static -> {
+                                                        if(text.length <= staticLimit){
+                                                            statRep = text
+                                                        }
+
+                                                    }
+                                                    IntensityUnits.Negative -> {
+                                                        if(text.length <= charLimit){
+                                                            negRep = text
+                                                        }
+
+                                                    }
+                                                    IntensityUnits.Forced -> {
+                                                        if(text.length <= charLimit){
+                                                            forRep = text
+                                                        }
+
+                                                    }
+                                                    IntensityUnits.PreExhaust -> {
+                                                        if(text.length <= charLimit){
+                                                            preRep = text
+                                                        }
+
+                                                    }
+                                                }
+                                                exerciseEvents(
+                                                    ExerciseEvents.AddReps(
+                                                        intensityUnit = c,
+                                                        exerciseModel = exerciseModel,
+                                                        cycleNumber = exerciseScreenUIState.cycleIndex,
+                                                        workoutNumber = exerciseScreenUIState.workoutIndex,
+                                                        reps = when(c){
+                                                            IntensityUnits.Positive -> posRep
+                                                            IntensityUnits.Static -> statRep
+                                                            IntensityUnits.Negative -> negRep
+                                                            IntensityUnits.Forced -> forRep
+                                                            IntensityUnits.PreExhaust -> preRep
+                                                        }
+                                                    )
+                                                )
+                                            },
+                                            imeAction = ImeAction.Done,
+                                            keyboardType = KeyboardType.Number,
+                                            fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                                            fontColor = MaterialTheme.colorScheme.onPrimary,
+                                            singleLine = true,
+                                            placeholderText = "",
+                                            placeholderStyle = MaterialTheme.typography.headlineSmall,
+                                            modifier = Modifier
+                                                .fillMaxWidth(1f)
+                                                .fillMaxHeight(1f)
+                                                .background(
+                                                    color = IntractableBackgroundColor,
+                                                    shape = RoundedCornerShape(0.dp)
+                                                )
+                                        )
+                                    }
+                                    // Previous Reps
+                                    1 -> {
+                                        Text(text = when(c){
+                                            IntensityUnits.Positive -> { exerciseComponentUIState.positivePreviousReps }
+                                            IntensityUnits.Static -> { exerciseComponentUIState.staticPreviousReps }
+                                            IntensityUnits.Negative -> { exerciseComponentUIState.negativePreviousReps }
+                                            IntensityUnits.Forced -> { exerciseComponentUIState.forcedPreviousReps }
+                                            IntensityUnits.PreExhaust -> { exerciseComponentUIState.preExhaustPreviousReps }
+                                        },
+                                            textAlign = TextAlign.Center,
+                                            style = MaterialTheme.typography.titleLarge,
+                                            color = MaterialTheme.colorScheme.onPrimary
+                                        )
+                                    }
+                                    // Difference
+                                    2 -> {
+                                        Text(text = when(c){
+                                            IntensityUnits.Positive -> { exerciseComponentUIState.positiveDifference }
+                                            IntensityUnits.Static -> { exerciseComponentUIState.staticDifference }
+                                            IntensityUnits.Negative -> { exerciseComponentUIState.negativeDifference }
+                                            IntensityUnits.Forced -> { exerciseComponentUIState.forcedDifference }
+                                            IntensityUnits.PreExhaust -> { "" }
+                                        },
+                                            textAlign = TextAlign.Center,
+                                            style = MaterialTheme.typography.titleLarge,
+                                            color = MaterialTheme.colorScheme.onPrimary
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun BodyPreview(){
+    Body(
+        exerciseModel = ExerciseModel(
+            exerciseNumber = 1,
+            exerciseName = "Exercise Preview",
+            exerciseType = "Compound",
+            weight = 0.0,
+            intensitySelected = arrayListOf(IntensityUnits.Positive),
+            value = hashMapOf(IntensityUnits.Positive to 0),
+            previousReps = hashMapOf(IntensityUnits.Positive to 0),
+            previousWeight = 0.0
+    ),
+        listOfIntensityUnits = emptyList(),
+        exerciseComponentUIState = ExerciseComponentUIState(),
+        exerciseEvents = {},
+        exerciseScreenUIState = ExerciseScreenUIState()
+        )
+}
+
 
 
 @Preview
@@ -802,22 +1030,5 @@ private fun IntensityExtensionPreview(){
 @Composable
 private fun IntensityComponentPreview(){
     IntensityComponent(onClick = {})
-}
-
-
-@Preview
-@Composable
-private fun BodyRowPreview(){
-    BodyRow(
-        value = "",
-        onValueChange = {}
-    )
-
-}
-
-@Preview
-@Composable
-private fun HeaderRowPreview(){
-    HeaderRow()
 }
 
